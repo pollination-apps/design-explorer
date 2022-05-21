@@ -1,0 +1,5 @@
+pollination-streamlit>=0.2.0
+honeybee-vtk==0.37.3
+streamlit-vtkjs>=0.3.2
+hiplot>=0.1.32
+pollination-streamlit-io>=0.25.0
