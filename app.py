@@ -28,7 +28,6 @@ st.set_page_config(
 
 
 with st.sidebar:
-
     # branding, api-key and url
     # we should wrap this up as part of the pollination-streamlit library
     st.image(
@@ -41,27 +40,16 @@ with st.sidebar:
         help='find the key under your account settings. If there is no key, generate it.'
     )
 
-    owner = st.text_input(
-        'Enter owner name',
-        help='This is mostly your user name on Pollination.'
-    ) or 'ladybug-tools'
-
-    project = st.text_input(
-        'Enter project name',
-        help='This is the name of the project on Pollination. Example is "demo".'
-    ) or 'demo'
-
-    job_id = st.text_input(
-        'Enter job id',
-        help='You typically find this at the end of the job url.'
-    ) or '89c01325-b2dd-4423-8d54-a6fae296c79a'
+    show_3d = st.checkbox('Show 3D model grid')
 
 
-job = Job(owner, project, job_id, ApiClient(api_token=api_key))
+job = job_selector(
+    ApiClient(api_token=api_key),
+    default='https://app.pollination.cloud/ladybug-tools/projects/demo/jobs/89c01325-b2dd-4423-8d54-a6fae296c79a',
+    help='Copy and paste the URL of your job on pollination.')
+
 
 st.title("Design explorer")
-st.write(
-    f"Showing job #{job.id} of {job.owner}'s {job.project} project. Use sidebar to change job 👈")
 
 
 @ st.cache
@@ -194,7 +182,7 @@ def check_recipe(recipe: Dict) -> List[str]:
 
 # TODO: Figure out why the interactive design didn't work
 # show_pc = st.sidebar.checkbox('Show parallel coordinates chart', value=True)
-show_3d = st.sidebar.checkbox('Show 3D model grid')
+
 if show_3d:
     # column_count = st.sidebar.slider(
     #     'Number of columns', min_value=1, max_value=3, value=3
