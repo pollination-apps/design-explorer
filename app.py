@@ -52,7 +52,7 @@ job = job_selector(
 st.title("Design explorer")
 
 
-@ st.cache
+@st.cache()
 def get_hiplot(df: pd.DataFrame):
     """Get hiplot only once on load.
 
@@ -65,7 +65,7 @@ def get_hiplot(df: pd.DataFrame):
     return job.runs_dataframe.dataframe, plt.to_streamlit(ret="selected_uids", key="hiplot")
 
 
-@ st.cache
+@st.cache()
 def download_model(dataframe: pd.DataFrame, run_number: str) -> pathlib.Path:
     run_row = dataframe.iloc[int(run_number)]
     run_id = dataframe.index.to_series().iloc[int(run_number)]
@@ -83,7 +83,7 @@ def download_model(dataframe: pd.DataFrame, run_number: str) -> pathlib.Path:
     return data_folder.joinpath('model.vtkjs')
 
 
-@ st.cache
+@st.cache()
 def download_results(runs: List[Run], output: str) -> pathlib.Path:
     for run in runs:
         res_zip = run.download_zipped_output(output)
