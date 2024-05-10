@@ -12,6 +12,7 @@ import numpy as np
 import base64
 from io import StringIO, BytesIO
 
+from containers import logo_title
 
 base_path = os.getenv('POLLINATION_API_URL', 'https://api.staging.pollination.cloud')
 
@@ -187,9 +188,7 @@ def images_grid():
 
 
 app.layout = dbc.Container([
-    html.Div(children=[
-        html.Img(src=app.get_asset_url('pollination.png'), style={'max-width': '200px'})],
-        style={'padding': '20px'}),
+    logo_title(app),
     create_radio_container(),
     # api_key.component,
     # pollination_dash_io.AuthUser(id='auth-user', basePath=base_path),
