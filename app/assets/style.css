@@ -35,7 +35,7 @@ body {
   border-radius: 50%;
   border-style: solid;
   border-width: 0.2cqw;
-  border-color: #636EFA;
+  /* border-color: #636EFA; */
   overflow: hidden;
   box-sizing: border-box;
 }
