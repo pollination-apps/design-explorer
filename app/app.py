@@ -12,7 +12,7 @@ import numpy as np
 import base64
 from io import StringIO, BytesIO
 
-from containers import logo_title
+from containers import logo_title, color_parallel_coordinates, sort_images, images
 
 base_path = os.getenv('POLLINATION_API_URL', 'https://api.staging.pollination.cloud')
 
@@ -24,6 +24,7 @@ server = app.server
 
 csv = Path(__file__).parent.joinpath('assets', 'sample', 'data.csv')
 df = pd.read_csv(csv)
+df_records = df.to_dict('records')
 dimensions = []
 labels = {}
 parameters = {}
@@ -52,12 +53,41 @@ for col_name, col_series in df.items():
 # color by first output column, or first input column
 if output_columns:
     color_by = output_columns[0]
+    sort_by = output_columns[0]
 else:
     color_by = input_columns[0]
+    sort_by = output_columns[0]
 
 fig = px.parallel_coordinates(df, color=color_by, labels=labels)
 
 img_column = df.filter(regex=f'^Img:').columns[0]
+
+images_div = []
+minimum, maximum = df[color_by].min(), df[color_by].max()
+sorted_df = df.sort_values(by=sort_by, ascending=False)
+sorted_df_records = sorted_df.to_dict('records')
+for record in sorted_df_records:
+    samplepoints = np.interp(record[color_by], [minimum, maximum], [0, 1])
+    border_color = px.colors.sample_colorscale(
+        'plasma', samplepoints=samplepoints
+    )[0]
+    image = html.Div(
+        html.Img(src=f'assets/sample/{record[img_column]}',
+                    id={'image': f'{record[img_column]}'},
+                    className='image-grid',
+                    style={'border-color': border_color}
+        ),
+        style={
+            'aspect-ratio': '1',
+            'width': '100%',
+            'height': '100%',
+            'position': 'relative',
+            'display': 'flex',
+            'align-items': 'center',
+            'justify-content': 'center',
+            }
+    )
+    images_div.append(image)
 
 def create_radio_container():
     """Function to create the radio items."""
@@ -79,114 +109,6 @@ def create_radio_container():
     return container
 
 
-def color_parallel_coordinates():
-    """Function to create the Div that contains the options for coloring the
-    parallel coordinates by a column."""
-    children = []
-    children_input = []
-    children_output = []
-    for value in parameters.values():
-        label = value['label']
-        if value['type'] == 'In':
-            children_input.append(
-                dbc.DropdownMenuItem(value['display_name'],
-                                     id={'color_by_dropdown': f'{label}'})
-            )
-        if value['type'] == 'Out':
-            children_output.append(
-                dbc.DropdownMenuItem(value['display_name'],
-                                     id={'color_by_dropdown': f'{label}'})
-            )
-    children.append(dbc.DropdownMenuItem('Output', header=True))
-    children.extend(children_output)
-    children.append(dbc.DropdownMenuItem('Divider', divider=True))
-    children.append(dbc.DropdownMenuItem('Input', header=True))
-    children.extend(children_input)
-    dropdown_menu = dbc.DropdownMenu(
-        id='color-by-dropdown',
-        label=parameters[color_by]['display_name'],
-        children=children,
-        direction='end'
-    )
-
-    store = dcc.Store(id='color-by-column')
-    color_by_label = html.Label(children='Color by', className='color-by-label')
-
-    color_by_container = html.Div(
-        className='color-by',
-        id='color-by',
-        children=[color_by_label, dropdown_menu, store]
-    )
-
-    return color_by_container
-
-
-def sort_images():
-    """Function to create the Div that contains the options for sorting the
-    images in the grid."""
-    children = []
-    children_input = []
-    children_output = []
-    for value in parameters.values():
-        label = value['label']
-        if value['type'] == 'In':
-            children_input.append(
-                dbc.DropdownMenuItem(value['display_name'],
-                                     id={'sort_by_dropdown': f'{label}'})
-            )
-        if value['type'] == 'Out':
-            children_output.append(
-                dbc.DropdownMenuItem(value['display_name'],
-                                     id={'sort_by_dropdown': f'{label}'})
-            )
-    children.append(dbc.DropdownMenuItem('Output', header=True))
-    children.extend(children_output)
-    children.append(dbc.DropdownMenuItem('Divider', divider=True))
-    children.append(dbc.DropdownMenuItem('Input', header=True))
-    children.extend(children_input)
-    dropdown_menu = dbc.DropdownMenu(
-        id='sort-by-dropdown',
-        label='None',
-        children=children,
-        direction='end'
-    )
-
-    sort_by_store = dcc.Store(id='sort-by-column')
-    button_icon = html.I(id='button-ascending-icon',
-                         className='bi bi-sort-down')
-    button_ascending = dbc.Button(children=[button_icon],
-                                  id='button-ascending',
-                                  class_name='sort-by-button')
-    sort_ascending_store = dcc.Store(id='sort-ascending', data=False)
-    sort_by_label = html.Label(children='Sort by',
-                               id='sort-by-label',
-                               className='sort-by-label')
-
-    sort_container = html.Div(
-        children=[sort_by_label, dropdown_menu, button_ascending, sort_by_store,
-                  sort_ascending_store],
-        className='sort-by',
-        id='sort-by-div'
-    )
-
-    return sort_container
-
-
-def images_grid():
-    images_grid_container = html.Div([
-        dcc.Store(id='selected-image-data'),
-        html.Div([
-            html.Div(id='selected-image-info', className='selected-image-info'),
-            html.Img(id='selected-image', className='selected-image')
-        ], id='selected-image-container', className='selected-image-container'),
-        html.Div(id='images-grid', className='images-grid')
-        ],
-        id='images-grid-div', className='images'
-    )
-
-    return images_grid_container
-
-
 app.layout = dbc.Container([
     logo_title(app),
     create_radio_container(),
@@ -198,13 +120,13 @@ app.layout = dbc.Container([
     #pollination_dash_io.SelectCloudArtifact(id='select-artifact', basePath=base_path),
     html.Div(id='show-temp'),
     # dcc.Store(id='csv'),
-    color_parallel_coordinates(),
-    dcc.Store(id='df', data=df.to_dict('records')),
+    color_parallel_coordinates(parameters, color_by),
+    dcc.Store(id='df', data=df_records),
     dcc.Store(id='labels', data=labels),
     dcc.Store(id='parallel-coordinates-figure', data=fig),
     dcc.Graph(id='parallel-coordinates', figure=fig),
-    sort_images(),
-    images_grid(),
+    sort_images(parameters, sort_by),
+    images(images_div),
     dash_table.DataTable(
         id='table', data=df.to_dict('records'),
         columns=[{'id': i, 'name': i.split(':')[-1]} for i in df.columns],
@@ -562,7 +484,8 @@ def update_table(data):
 
 @app.callback(
     Output('active-filters', 'data'),
-    Input('parallel-coordinates', 'restyleData')
+    Input('parallel-coordinates', 'restyleData'),
+    prevent_initial_call=True,
 )
 def update_active_filters(data):
     """If a selection is made in the parallel coordinate plot, the data will be
