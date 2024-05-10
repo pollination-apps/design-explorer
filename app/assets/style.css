@@ -1,0 +1,116 @@
+body {
+  font-family: "Source Sans Pro", sans-serif;
+  -webkit-font-smoothing: auto;
+  line-height: 1.6;
+  font-weight: normal !important;
+  width: min(100%,max(1200px, 75vw));
+  margin: 0 auto;
+}
+
+.images {
+  display: flex;
+  /* padding: 20px; */
+  /* background-color: lavender; */
+}
+
+.images-grid {
+  display: grid;
+  flex-grow: 1;
+  grid-template-columns: repeat(auto-fill, minmax(5%, 1fr));
+  justify-content: space-between;
+  grid-gap: 7px;
+  grid-row-gap: 7px;
+  width: 100%;
+  padding: 20px;
+  grid-auto-rows: min-content;
+  /* background-color: mintcream; */
+  transition: width 0.3s;
+}
+
+.image-grid {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+  border-radius: 50%;
+  border-style: solid;
+  border-width: 0.2cqw;
+  border-color: #636EFA;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.image-grid:hover {
+  scale: 1.5;
+  z-index: 2;
+  transition: 500ms;
+}
+
+.selected-image-container {
+  display: flex;
+  width: 0;
+  overflow: hidden;
+  justify-content: space-between;
+  /* background-color: burlywood; */
+  /* align-items: center; */
+  /* padding: 20px; */
+  gap: 20px;
+  transition: width 0.3s;
+}
+
+.selected-image {
+  max-width: 100%;
+  width: auto;
+  cursor: pointer;
+  /* border-style: solid; */
+  /* border-width: 0.2cqw; */
+  /* border-color: black; */
+  padding: 20px;
+}
+
+.selected-image-info {
+  padding: 20px;
+  white-space: nowrap;
+}
+
+.radio-items {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  gap: 10px;
+  /* background-color: mediumaquamarine; */
+}
+
+.color-by {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  gap: 10px;
+  /* background-color: lightblue; */
+}
+
+.color-by-label {
+  font-weight: bold;
+}
+
+.sort-by {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  gap: 10px;
+  /* background-color: lightblue; */
+}
+
+.sort-by-label {
+  font-weight: bold;
+}
+
+.sort-by-button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.label-bold {
+  font-weight: bold;
+}

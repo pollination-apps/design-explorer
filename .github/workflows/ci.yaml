@@ -4,18 +4,43 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  test-docker:
-    name: Test docker build
+
+  generate-app-name:
+    name: Generate App name
     runs-on: ubuntu-latest
-    if: github.ref != 'refs/heads/production'
+
     steps:
       - uses: actions/checkout@v2
+        
+      - name: Generate App name
+        id: generate_app_name
+        run: |
+          repo_name=${{ github.event.repository.name }}
+          echo $repo_name
+          lowercase_repo_name=${repo_name,,}
+          echo $lowercase_repo_name
+          name_spaces=$(echo $lowercase_repo_name | sed 's/-/ /g' | sed 's/\w\+/\L\u&/g')
+          echo $name_spaces
+          echo "::set-output name=app-lowercase::$lowercase_repo_name"
+          echo "::set-output name=app-name::$name_spaces"
+    outputs:
+      app-lowercase: ${{ steps.generate_app_name.outputs.app-lowercase }}
+      app-name: ${{ steps.generate_app_name.outputs.app-name }}
 
+
+  test-docker:
+    name: Test Docker build
+    runs-on: ubuntu-latest
+    needs: generate-app-name
+    steps:
+      - uses: actions/checkout@v2
+        
       - name: Build docker image
-        run: docker build . --file Dockerfile --tag ${{github.event.repository.name}}:latest
+        run: docker build app --tag ${{needs.generate-app-name.outputs.app-lowercase}}:latest
+
 
   release-on-github:
-    name: Deploy to GitHub
+    name: Release on Github
     runs-on: ubuntu-latest
     needs: test-docker
     if: github.ref == 'refs/heads/master' && github.event.repository.owner.name == 'pollination-apps'
@@ -43,6 +68,7 @@ jobs:
     outputs:
       tag: ${{ steps.new_release.outputs.tag }}
 
+
   deploy-to-staging:
     name: Deploy to Pollination Staging
     runs-on: ubuntu-latest
@@ -50,30 +76,7 @@ jobs:
     if: ${{github.ref == 'refs/heads/master' && github.event.repository.owner.name == 'pollination-apps' && contains(needs.release-on-github.outputs.tag, '.')}}
     steps:
       - uses: actions/checkout@v2
-
-      - name: set up Python
-        uses: actions/setup-python@v2
         with:
-          python-version: 3.7
-
-      - name: install dev requirements
-        run: pip install -r dev-requirements.txt
-
-      - name: deploy to staging
-        run: pollination-apps deploy . --tag ${{needs.release-on-github.outputs.tag}} --owner ladybug-tools -n ${{github.event.repository.name}} -e staging -m "${{github.event.commits[0].message}}"
-        
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          POLLINATION_TOKEN: ${{ secrets.POLLINATION_STAGING_TOKEN }}
-
-  deploy-to-production:
-    name: Deploy to Pollination Production
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/production' && github.event.repository.owner.name == 'pollination-apps'
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          ref: production
           fetch-depth: 0
 
       - name: set up Python
@@ -88,18 +91,58 @@ jobs:
           echo "Releasing tag: ${TAG:?}"
           echo "::set-output name=tag::$TAG"
 
-      - name: install dev requirements
-        run: pip install -r dev-requirements.txt
+      - name: install pollination-apps
+        run: pip install -U pollination-apps
+      
+      - name: deploy to staging
+        run: |
+          TAG=$(echo "${TAG:?}" | sed 's/[[:space:]]//g')
+          TAG=${TAG%%-*}
 
+          echo pollination-apps deploy app --tag $TAG --environment staging --public --sdk dash --message "${{github.event.commits[0].message}}" 
+
+          pollination-apps deploy app --tag $TAG --environment staging --public --sdk dash --message "${{github.event.commits[0].message}}" 
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          POLLINATION_TOKEN: ${{ secrets.POLLINATION_STAGING_TOKEN }}
+          TAG: ${{ steps.get-context.outputs.tag }}
+
+
+  deploy-to-pollination:
+    name: Deploy to Pollination
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/production' && github.event.repository.owner.name == 'pollination-apps'
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
+      - name: Get Job Context
+        id: get-context
+        run: |
+          TAG=$(git describe --tags | sed 's/v//')
+          echo "Releasing tag: ${TAG:?}"
+          echo "::set-output name=tag::$TAG"
+
+      - name: install pollination-apps
+        run: pip install -U pollination-apps
+      
       - name: deploy to production
         run: |
           TAG=$(echo "${TAG:?}" | sed 's/[[:space:]]//g')
           TAG=${TAG%%-*}
-          echo $TAG
-          pollination-apps deploy . --tag $TAG --owner ladybug-tools -n ${{github.event.repository.name}} -e production -m "${{github.event.commits[0].message}}"
+
+          echo pollination-apps deploy app --tag $TAG --public --sdk dash --message "${{github.event.commits[0].message}}" 
+
+          pollination-apps deploy app --tag $TAG --public --sdk dash --message "${{github.event.commits[0].message}}" 
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           POLLINATION_TOKEN: ${{ secrets.POLLINATION_LADYBUGBOT_TOKEN }}
           TAG: ${{ steps.get-context.outputs.tag }}
-
