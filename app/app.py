@@ -20,7 +20,7 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.
 app.title = 'Design Explorer'
 server = app.server
 
-#api_key = pollination_dash_io.ApiKey()
+api_key = pollination_dash_io.ApiKey()
 
 csv = Path(__file__).parent.joinpath('assets', 'sample', 'data.csv')
 df = pd.read_csv(csv)
@@ -110,9 +110,9 @@ def create_radio_container():
 
 
 app.layout = dbc.Container([
+    api_key.component,
     logo_title(app),
     create_radio_container(),
-    # api_key.component,
     # pollination_dash_io.AuthUser(id='auth-user', basePath=base_path),
     # pollination_dash_io.SelectAccount(id='select-account', basePath=base_path),
     # pollination_dash_io.SelectProject(id='select-project', basePath=base_path),
