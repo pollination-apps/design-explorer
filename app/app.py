@@ -32,6 +32,7 @@ parameters = {}
 
 input_columns = []
 output_columns = []
+image_columns = []
 for col_name, col_series in df.items():
     col_type, col_id = col_name.split(':')
     if col_type != 'Img':
@@ -50,6 +51,8 @@ for col_name, col_series in df.items():
             input_columns.append(col_name)
         elif col_type == 'Out':
             output_columns.append(col_name)
+    else:
+        image_columns.append(col_name)
 
 # color by first output column, or first input column
 if output_columns:
@@ -90,24 +93,13 @@ for record in sorted_df_records:
     )
     images_div.append(image)
 
-def create_radio_container():
-    """Function to create the radio items."""
-    container = html.Div(
-        children=[
-            dbc.RadioItems(
-                options=[
-                    {'label': 'Sample Project', 'value': 1},
-                    {'label': 'Load project from Pollination', 'value': 2, 'disabled': True},
-                ],
-                value=1,
-                id='radio-items-input',
-                inline=True
-            ),
-        ],
-        id='radio-items',
-        className='radio-items'
-    )
-    return container
+columns = []
+for value in parameters.values():
+    if value['type'] != 'Img':
+        columns.append({'id': value['label'], 'name': value['display_name']})
+    else:
+        columns.append(
+            {'id': value['label'], 'name': value['display_name'], 'hidden': True})
 
 
 app.layout = dbc.Container([
@@ -120,7 +112,6 @@ app.layout = dbc.Container([
     # html.Div(id='select-artifact-container'),
     #pollination_dash_io.SelectCloudArtifact(id='select-artifact', basePath=base_path),
     html.Div(id='show-temp'),
-    # dcc.Store(id='csv'),
     color_parallel_coordinates(parameters, color_by),
     dcc.Store(id='df', data=df_records),
     dcc.Store(id='df-columns', data=df.columns),
@@ -131,7 +122,7 @@ app.layout = dbc.Container([
     images(images_div),
     dash_table.DataTable(
         id='table', data=df.to_dict('records'),
-        columns=[{'id': i, 'name': i.split(':')[-1]} for i in df.columns],
+        columns=columns,
         style_table={'padding': '20px'},
         sort_action='native'),
     dcc.Store(id='active-filters')
@@ -159,18 +150,6 @@ def update_sort_ascending(n_clicks, sort_ascending):
 #     app=app,
 #     component_ids=['auth-user', 'select-account', 'select-project']
 # )
-
-
-# @app.callback(
-#     Output('show-temp', 'children', allow_duplicate=True),
-#     [Input('select-artifact', 'name'),
-#      State('select-artifact', 'value'),
-#      State('select-artifact', 'type')],
-#     prevent_initial_call=True
-# )
-# def show_temp(name, value, type_):
-#     #print(base64.b64decode(value))
-#     return dash_renderjson.DashRenderjson(id='json-out', data={'name': name, 'value': value, 'type': type_})
 
 
 # @app.callback(
