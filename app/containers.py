@@ -1,29 +1,41 @@
-import os
-import pollination_dash_io
-import dash
-from dash import html, dcc, dash_table, Patch, ALL, ctx
-from dash.dependencies import Input, Output, State
-import dash_renderjson
-from pathlib import Path
-import pandas as pd
-import plotly.express as px
+"""Module with function to create containers for the app layout."""
+from dash import html, dcc
 import dash_bootstrap_components as dbc
-import numpy as np
-import base64
-import zipfile
-from pathlib import Path
-from io import StringIO, BytesIO
 
 
 def logo_title(app):
+    """Function to create the Div that containers the Pollination logo and app
+    title (Design Explorer)."""
     container = html.Div(children=[
         html.Img(id='pollination-logo',
                  src=app.get_asset_url('pollination.svg'),
                  className='logo'),
-        html.Span(children='Design Explorer',
+        html.Span(children='Design Explorer (WIP)',
                 className='app-name')
-    ],
-    className='logo-title')
+        ],
+        className='logo-title'
+    )
+
+    return container
+
+
+def create_radio_container():
+    """Function to create the radio items."""
+    container = html.Div(
+        children=[
+            dbc.RadioItems(
+                options=[
+                    {'label': 'Sample Project', 'value': 1},
+                    {'label': 'Load project from Pollination', 'value': 2, 'disabled': True},
+                ],
+                value=1,
+                id='radio-items-input',
+                inline=True
+            ),
+        ],
+        id='radio-items',
+        className='radio-items'
+    )
     return container
 
 

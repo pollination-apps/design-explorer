@@ -50,7 +50,6 @@ body {
   display: flex;
   width: 0;
   overflow: hidden;
-  justify-content: space-between;
   /* background-color: burlywood; */
   /* align-items: center; */
   /* padding: 20px; */
