@@ -122,6 +122,7 @@ app.layout = dbc.Container([
     # dcc.Store(id='csv'),
     color_parallel_coordinates(parameters, color_by),
     dcc.Store(id='df', data=df_records),
+    dcc.Store(id='df-columns', data=df.columns),
     dcc.Store(id='labels', data=labels),
     dcc.Store(id='parallel-coordinates-figure', data=fig),
     dcc.Graph(id='parallel-coordinates', figure=fig),
@@ -442,10 +443,11 @@ def update_table_from_figure(figure, df_records):
 
 @app.callback(
     Output('table', 'data', allow_duplicate=True),
-    Input('active-filters', 'data'),
+    [Input('active-filters', 'data'),
+     State('df', 'data')],
     prevent_initial_call=True,
 )
-def update_table(data):
+def update_table(data, df_records):
     """If the data in active-filters is changed, the data will be updated in
     table.
     
@@ -469,14 +471,14 @@ def update_table(data):
     since removed.
     """
     if data:
-        dff = df.copy()
+        dff = pd.DataFrame.from_records(df_records)
         for col in data:
             if data[col]:
                 # there is a selection, i.e., the value is not None
                 rng = data[col][0]
                 if isinstance(rng[0], list):
                     # if multiple choices combine df
-                    dff3 = pd.DataFrame(columns=df.columns)
+                    dff3 = pd.DataFrame(columns=dff.columns)
                     for i in rng:
                         dff2 = dff[dff[col].between(i[0], i[1])]
                         dff3 = pd.concat([dff3, dff2])
@@ -485,21 +487,22 @@ def update_table(data):
                     # there is one selection
                     dff = dff[dff[col].between(rng[0], rng[1])]
         return dff.to_dict('records')
-    return df.to_dict('records')
+    return df_records
 
 
 @app.callback(
     Output('active-filters', 'data'),
-    Input('parallel-coordinates', 'restyleData'),
+    [Input('parallel-coordinates', 'restyleData'),
+     State('df-columns', 'data')],
     prevent_initial_call=True,
 )
-def update_active_filters(data):
+def update_active_filters(data, df_columns):
     """If a selection is made in the parallel coordinate plot, the data will be
     updated in active-filters."""
     if data:
         key = list(data[0].keys())[0]
-        col = df.columns.tolist()[int(key.split('[')[1].split(']')[0])]
-        new_data = Patch()
+        col = df_columns[int(key.split('[')[1].split(']')[0])]
+        new_data = {}
         new_data[col] = data[0][key]
         return new_data
     return {}
