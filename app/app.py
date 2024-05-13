@@ -20,7 +20,7 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.
 app.title = 'Design Explorer'
 server = app.server
 
-api_key = pollination_dash_io.ApiKey()
+#api_key = pollination_dash_io.ApiKey()
 
 csv = Path(__file__).parent.joinpath('assets', 'sample', 'data.csv')
 df = pd.read_csv(csv)
@@ -110,7 +110,7 @@ def create_radio_container():
 
 
 app.layout = dbc.Container([
-    api_key.component,
+    #api_key.component,
     logo_title(app),
     create_radio_container(),
     # pollination_dash_io.AuthUser(id='auth-user', basePath=base_path),
@@ -267,16 +267,16 @@ def update_color_by(n_clicks, df_records, labels):
     label is updated in color-by-dropdown."""
     dff = pd.DataFrame.from_records(df_records)
     color_by = ctx.triggered_id.color_by_dropdown
-    if color_by == 'None':
-        new_fig = px.parallel_coordinates(
-            dff, labels=labels,
-            color_continuous_scale=px.colors.get_colorscale('plasma'))
-        return new_fig, color_by, 'None'
-    else:
+    if color_by:
         new_fig = px.parallel_coordinates(
             dff, color=color_by, labels=labels,
             color_continuous_scale=px.colors.get_colorscale('plasma'))
         return new_fig, color_by, labels[color_by]
+    else:
+        new_fig = px.parallel_coordinates(
+            dff, labels=labels,
+            color_continuous_scale=px.colors.get_colorscale('plasma'))
+        return new_fig, color_by, 'None'
 
 
 @app.callback(
@@ -365,7 +365,7 @@ def update_selected_image_table(selected_image_data):
     [Input('table', 'data'),
      State('selected-image-data', 'data'),
      State('df', 'data'),
-     State('color-by-column', 'data'),
+     Input('color-by-column', 'data'),
      Input('sort-by-column', 'data'),
      Input('sort-ascending', 'data')],
     prevent_initial_call=True,
