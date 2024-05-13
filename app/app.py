@@ -12,7 +12,8 @@ import numpy as np
 import base64
 from io import StringIO, BytesIO
 
-from containers import logo_title, color_parallel_coordinates, sort_images, images
+from containers import logo_title, create_radio_container, \
+    color_parallel_coordinates, sort_images, images
 
 base_path = os.getenv('POLLINATION_API_URL', 'https://api.staging.pollination.cloud')
 
