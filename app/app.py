@@ -266,10 +266,16 @@ def update_color_by(n_clicks, df_records, labels):
     label is updated in color-by-dropdown."""
     dff = pd.DataFrame.from_records(df_records)
     color_by = ctx.triggered_id.color_by_dropdown
-    new_fig = px.parallel_coordinates(
-        dff, color=color_by, labels=labels,
-        color_continuous_scale=px.colors.get_colorscale('plasma'))
-    return new_fig, color_by, labels[color_by]
+    if color_by == 'None':
+        new_fig = px.parallel_coordinates(
+            dff, labels=labels,
+            color_continuous_scale=px.colors.get_colorscale('plasma'))
+        return new_fig, color_by, 'None'
+    else:
+        new_fig = px.parallel_coordinates(
+            dff, color=color_by, labels=labels,
+            color_continuous_scale=px.colors.get_colorscale('plasma'))
+        return new_fig, color_by, labels[color_by]
 
 
 @app.callback(

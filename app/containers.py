@@ -45,6 +45,8 @@ def color_parallel_coordinates(parameters, color_by):
                 dbc.DropdownMenuItem(value['display_name'],
                                      id={'color_by_dropdown': f'{label}'})
             )
+    children.append(dbc.DropdownMenuItem('None', id={'color_by_dropdown': 'None'}))
+    children.append(dbc.DropdownMenuItem('Divider', divider=True))
     children.append(dbc.DropdownMenuItem('Output', header=True))
     children.extend(children_output)
     children.append(dbc.DropdownMenuItem('Divider', divider=True))
