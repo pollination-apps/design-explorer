@@ -250,16 +250,14 @@ def update_color_by(n_clicks, df_records, labels, figure):
     color_by = ctx.triggered_id.color_by_dropdown
 
     if color_by:
-        new_fig = px.parallel_coordinates(
-            dff, color=color_by, labels=labels,
-            color_continuous_scale=px.colors.get_colorscale('plasma'))
-        new_fig.update_traces(dimensions=figure['data'][0]['dimensions'])
+        new_fig = Patch()
+        new_fig['data'][0]['dimensions'] = figure['data'][0]['dimensions']
+        new_fig['data'][0]['line']['color'] = dff[color_by]
         return new_fig, color_by, labels[color_by]
     else:
-        new_fig = px.parallel_coordinates(
-            dff, labels=labels,
-            color_continuous_scale=px.colors.get_colorscale('plasma'))
-        new_fig.update_traces(dimensions=figure['data'][0]['dimensions'])
+        new_fig = Patch()
+        new_fig['data'][0]['dimensions'] = figure['data'][0]['dimensions']
+        new_fig['data'][0]['line']['color'] = None
         return new_fig, color_by, 'None'
 
 
