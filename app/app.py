@@ -238,24 +238,28 @@ def update_sort_by(n_clicks, labels):
      Output('color-by-dropdown', 'label')],
     [Input({'color_by_dropdown': ALL}, 'n_clicks'),
      State('df', 'data'),
-     State('labels', 'data')],
+     State('labels', 'data'),
+     State('parallel-coordinates', 'figure')],
     prevent_initial_call=True
 )
-def update_color_by(n_clicks, df_records, labels):
+def update_color_by(n_clicks, df_records, labels, figure):
     """If a click is registered in the color by dropdown, the figure is updated
     in parallel-coordinates, the data is updated in color-by-column, and the
     label is updated in color-by-dropdown."""
     dff = pd.DataFrame.from_records(df_records)
     color_by = ctx.triggered_id.color_by_dropdown
+
     if color_by:
         new_fig = px.parallel_coordinates(
             dff, color=color_by, labels=labels,
             color_continuous_scale=px.colors.get_colorscale('plasma'))
+        new_fig.update_traces(dimensions=figure['data'][0]['dimensions'])
         return new_fig, color_by, labels[color_by]
     else:
         new_fig = px.parallel_coordinates(
             dff, labels=labels,
             color_continuous_scale=px.colors.get_colorscale('plasma'))
+        new_fig.update_traces(dimensions=figure['data'][0]['dimensions'])
         return new_fig, color_by, 'None'
 
 
@@ -409,16 +413,16 @@ def update_image_grid(
     return images_div, image_grid_style
 
 
-@app.callback(
-    Output('table', 'data', allow_duplicate=True),
-    [Input('parallel-coordinates', 'figure'),
-     State('df', 'data')],
-    prevent_initial_call=True,
-)
-def update_table_from_figure(figure, df_records):
-    """If the figure in parallel-coordinates is changed, the data in table will
-    be updated (reset to default)."""
-    return df_records
+# @app.callback(
+#     Output('table', 'data', allow_duplicate=True),
+#     [Input('parallel-coordinates', 'figure'),
+#      State('df', 'data')],
+#     prevent_initial_call=True,
+# )
+# def update_table_from_figure(figure, df_records):
+#     """If the figure in parallel-coordinates is changed, the data in table will
+#     be updated (reset to default)."""
+#     return df_records
 
 
 @app.callback(
@@ -485,7 +489,7 @@ def update_active_filters(data, df_columns):
         new_data = {}
         new_data[col] = data[0][key]
         return new_data
-    return {}
+    return dash.no_update
 
 
 if __name__ == '__main__':
