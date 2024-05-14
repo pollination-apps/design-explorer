@@ -125,7 +125,7 @@ app.layout = dbc.Container([
         columns=columns,
         style_table={'padding': '20px'},
         sort_action='native'),
-    dcc.Store(id='active-filters')
+    dcc.Store(id='active-filters', data={})
 ], style={'padding': '20px'}, fluid=True)
 
 
@@ -486,7 +486,7 @@ def update_active_filters(data, df_columns):
     if data:
         key = list(data[0].keys())[0]
         col = df_columns[int(key.split('[')[1].split(']')[0])]
-        new_data = {}
+        new_data = Patch()
         new_data[col] = data[0][key]
         return new_data
     return dash.no_update
