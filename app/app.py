@@ -1,11 +1,10 @@
 import os
-import pollination_dash_io
 import dash
 from dash import html, dcc, dash_table, Patch, ALL, ctx
 from dash.dependencies import Input, Output, State
-import dash_renderjson
 from pathlib import Path
 import pandas as pd
+import plotly.graph_objects as go
 import plotly.express as px
 import dash_bootstrap_components as dbc
 import numpy as np
@@ -23,7 +22,7 @@ server = app.server
 
 #api_key = pollination_dash_io.ApiKey()
 
-csv = Path(__file__).parent.joinpath('assets', 'sample', 'data.csv')
+csv = Path(__file__).parent.joinpath('assets', 'samples', 'sample', 'data.csv')
 df = pd.read_csv(csv)
 df_records = df.to_dict('records')
 dimensions = []
@@ -76,7 +75,7 @@ for record in sorted_df_records:
         'plasma', samplepoints=samplepoints
     )[0]
     image = html.Div(
-        html.Img(src=f'assets/sample/{record[img_column]}',
+        html.Img(src=f'assets/samples/sample/{record[img_column]}',
                     id={'image': f'{record[img_column]}'},
                     className='image-grid',
                     style={'border-color': border_color}
@@ -113,9 +112,11 @@ app.layout = dbc.Container([
     #pollination_dash_io.SelectCloudArtifact(id='select-artifact', basePath=base_path),
     html.Div(id='show-temp'),
     color_parallel_coordinates(parameters, color_by),
+    dcc.Store(id='project-folder', data='assets/samples/sample'),
     dcc.Store(id='df', data=df_records),
     dcc.Store(id='df-columns', data=df.columns),
     dcc.Store(id='labels', data=labels),
+    dcc.Store(id='parallel-coordinates-figure-highlight', data={}),
     dcc.Store(id='parallel-coordinates-figure', data=fig),
     dcc.Graph(id='parallel-coordinates', figure=fig),
     sort_images(parameters, sort_by),
@@ -314,10 +315,11 @@ def update_click_selected_image(n_clicks):
     [Output('selected-image', 'src', allow_duplicate=True),
      Output('selected-image-container', 'style', allow_duplicate=True),
      Output('images-grid', 'style', allow_duplicate=True)],
-    Input('selected-image-data', 'data'),
+    [Input('selected-image-data', 'data'),
+     State('project-folder', 'data')],
     prevent_initial_call=True,
 )
-def update_selected_image_table(selected_image_data):
+def update_selected_image_table(selected_image_data, project_folder):
     """If the data in selected-image-table is changed.
     
     The src of selected-image is taken from selected-image-table. The styles of
@@ -325,7 +327,9 @@ def update_selected_image_table(selected_image_data):
     if selected_image_data is None:
         return dash.no_update
 
-    src = f'assets/sample/{selected_image_data[0][img_column]}'
+    project_folder = Path(project_folder)
+    src = project_folder.joinpath(selected_image_data[0][img_column]).as_posix()
+    #src = f'assets/samples/sample/{selected_image_data[0][img_column]}'
 
     # create the style for selected-image-container
     selected_image_container_style = {
@@ -349,12 +353,13 @@ def update_selected_image_table(selected_image_data):
      State('df', 'data'),
      Input('color-by-column', 'data'),
      Input('sort-by-column', 'data'),
-     Input('sort-ascending', 'data')],
+     Input('sort-ascending', 'data'),
+     State('project-folder', 'data')],
     prevent_initial_call=True,
 )
 def update_image_grid(
         data, selected_image_data, df_records, color_by_column, sort_by_column,
-        sort_ascending):
+        sort_ascending, project_folder):
     """If the data in table is changed, the children and style will be updated
     in images-grid.
     
@@ -376,14 +381,16 @@ def update_image_grid(
         dff = pd.DataFrame.from_records(data)
         sorted_df = dff.sort_values(by=sort_by_column, ascending=sort_ascending)
         data = sorted_df.to_dict('records')
+    project_folder = Path(project_folder)
     for d in data:
         if color_by_column:
             samplepoints = np.interp(d[color_by_column], [minimum, maximum], [0, 1])
             border_color = px.colors.sample_colorscale(
                 'plasma', samplepoints=samplepoints
             )[0]
+        src = project_folder.joinpath(d[img_column])
         image = html.Div(
-            html.Img(src=f'assets/sample/{d[img_column]}',
+            html.Img(src=src.as_posix(),
                      id={'image': f'{d[img_column]}'},
                      className='image-grid',
                      style={'border-color': border_color}
