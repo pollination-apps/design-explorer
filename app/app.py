@@ -1,19 +1,18 @@
+"""Module for app."""
 import os
 import dash
 from dash import html, dcc, dash_table, Patch, ALL, ctx
 from dash.dependencies import Input, Output, State
 from pathlib import Path
 import pandas as pd
-import plotly.graph_objects as go
 import plotly.express as px
 import dash_bootstrap_components as dbc
 import numpy as np
-import base64
-from io import StringIO, BytesIO
 
 from containers import logo_title, create_radio_container, select_sample_project, \
     create_color_by_children, create_color_by_container, create_sort_by_children, \
     create_sort_by_container, create_images_grid_children, create_images_container
+from helper import process_dataframe
 from samples import sample_alias
 
 base_path = os.getenv('POLLINATION_API_URL', 'https://api.staging.pollination.cloud')
@@ -28,33 +27,9 @@ project_folder = 'assets/samples/sample'
 csv = Path(__file__).parent.joinpath('assets', 'samples', 'sample', 'data.csv')
 df = pd.read_csv(csv)
 df_records = df.to_dict('records')
-dimensions = []
-labels = {}
-parameters = {}
 
-input_columns = []
-output_columns = []
-image_columns = []
-for col_name, col_series in df.items():
-    col_type, col_id = col_name.split(':')
-    if col_type != 'Img':
-        dimension = {
-            'label': col_id,
-            'values': col_series.values
-        }
-        dimensions.append(dimension)
-        labels[col_name] = col_id
-        parameters[col_name] = {
-            'label': col_name, 
-            'display_name': col_id,
-            'type': col_type
-        }
-        if col_type == 'In':
-            input_columns.append(col_name)
-        elif col_type == 'Out':
-            output_columns.append(col_name)
-    else:
-        image_columns.append(col_name)
+labels, parameters, input_columns, output_columns, image_columns = \
+    process_dataframe(df)
 
 # color by first output column, or first input column
 if output_columns:
@@ -107,7 +82,7 @@ app.layout = dbc.Container([
     dcc.Store(id='parallel-coordinates-figure', data=fig),
     dcc.Graph(id='parallel-coordinates', figure=fig),
     create_sort_by_container(parameters, sort_by),
-    create_images_container(images_div),
+    create_images_container(images_grid_children),
     dash_table.DataTable(
         id='table', data=df.to_dict('records'),
         columns=columns,
@@ -146,33 +121,8 @@ def update_sample_project(n_clicks):
     dff = pd.read_csv(csv)
     df_records = dff.to_dict('records')
 
-    dimensions = []
-    labels = {}
-    parameters = {}
-
-    input_columns = []
-    output_columns = []
-    image_columns = []
-    for col_name, col_series in dff.items():
-        col_type, col_id = col_name.split(':')
-        if col_type != 'Img':
-            dimension = {
-                'label': col_id,
-                'values': col_series.values
-            }
-            dimensions.append(dimension)
-            labels[col_name] = col_id
-            parameters[col_name] = {
-                'label': col_name, 
-                'display_name': col_id,
-                'type': col_type
-            }
-            if col_type == 'In':
-                input_columns.append(col_name)
-            elif col_type == 'Out':
-                output_columns.append(col_name)
-        else:
-            image_columns.append(col_name)
+    labels, parameters, input_columns, output_columns, image_columns = \
+        process_dataframe(dff)
 
     # color by first output column, or first input column
     if output_columns:
@@ -370,10 +320,10 @@ def update_selected_image_table(selected_image_data, img_column, project_folder)
      State('project-folder', 'data')],
     prevent_initial_call=True,
 )
-def update_imagerthrth_grid(
+def update_images_grid(
         active_records, df_records, color_by_column, sort_by_column,
         sort_ascending, img_column, project_folder):
-    """If the data in table is changed, the children and style will be updated
+    """If the data in active-records is changed, the children will be updated
     in images-grid.
     
     The images-grid is a grid showing all the images of the selected filters in
@@ -428,7 +378,8 @@ def update_imagerthrth_grid(
     Input('active-records', 'data'),
     prevent_initial_call=True,
 )
-def rthrtjhrt(active_records):
+def update_table_data(active_records):
+    """If the active-records is changed, the data will be updated in table."""
     return active_records
 
 
@@ -438,9 +389,9 @@ def rthrtjhrt(active_records):
      State('df', 'data')],
     prevent_initial_call=True,
 )
-def update_table(data, df_records):
+def update_active_records(data, df_records):
     """If the data in active-filters is changed, the data will be updated in
-    table.
+    active-records.
     
     The data coming from active-filters is a dictionary. Here is an example:
     {
