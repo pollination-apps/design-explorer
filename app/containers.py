@@ -48,7 +48,7 @@ def select_sample_project() -> html.Div:
     parallel coordinates by a column."""
     children = []
     children.append(dbc.DropdownMenuItem('Sample', id={'select_sample_project': 'sample'}))
-    #children.append(dbc.DropdownMenuItem('Daylight Factor', id={'select_sample_project': 'daylight-factor'}))
+    children.append(dbc.DropdownMenuItem('Daylight Factor', id={'select_sample_project': 'daylight-factor'}))
     dropdown_menu = dbc.DropdownMenu(
         id='select-sample-dropdown',
         label='Sample',
