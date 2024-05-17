@@ -29,10 +29,10 @@ def create_radio_container() -> html.Div:
         children=[
             dbc.RadioItems(
                 options=[
-                    {'label': 'Sample Project', 'value': 1},
-                    {'label': 'Load project from Pollination', 'value': 2, 'disabled': True},
+                    {'label': 'Sample Project', 'value': False},
+                    {'label': 'Load project from Pollination', 'value': True},
                 ],
-                value=1,
+                value=False,
                 id='radio-items-input',
                 inline=True
             ),
@@ -48,12 +48,13 @@ def select_sample_project() -> html.Div:
     parallel coordinates by a column."""
     children = []
     children.append(dbc.DropdownMenuItem('Sample', id={'select_sample_project': 'sample'}))
-    children.append(dbc.DropdownMenuItem('Daylight Factor', id={'select_sample_project': 'daylight-factor'}))
+    #children.append(dbc.DropdownMenuItem('Daylight Factor', id={'select_sample_project': 'daylight-factor'}))
     dropdown_menu = dbc.DropdownMenu(
         id='select-sample-dropdown',
         label='Sample',
         children=children,
-        direction='end'
+        direction='end',
+        size='sm'
     )
 
     select_sample_label = html.Label(children='Select sample', className='color-by-label')
@@ -96,7 +97,8 @@ def create_color_by_children(parameters, color_by) -> List[html.Div]:
         id='color-by-dropdown',
         label=parameters[color_by]['display_name'],
         children=children,
-        direction='end'
+        direction='end',
+        size='sm'
     )
 
     store = dcc.Store(id='color-by-column', data=color_by)
@@ -148,7 +150,8 @@ def create_sort_by_children(parameters, sort_by) -> html.Div:
         id='sort-by-dropdown',
         label=parameters[sort_by]['display_name'],
         children=children,
-        direction='end'
+        direction='end',
+        size='sm'
     )
 
     sort_by_store = dcc.Store(id='sort-by-column', data=sort_by)
@@ -156,7 +159,8 @@ def create_sort_by_children(parameters, sort_by) -> html.Div:
                          className='bi bi-sort-down')
     button_ascending = dbc.Button(children=[button_icon],
                                   id='button-ascending',
-                                  class_name='sort-by-button')
+                                  class_name='sort-by-button',
+                                  size='sm')
     sort_ascending_store = dcc.Store(id='sort-ascending', data=False)
     sort_by_label = html.Label(children='Sort by',
                                id='sort-by-label',
