@@ -8,6 +8,11 @@ import pandas as pd
 import plotly.express as px
 import dash_bootstrap_components as dbc
 import numpy as np
+import pollination_dash_io
+import base64
+import zipfile
+from io import BytesIO
+from flask import send_from_directory
 
 from containers import logo_title, create_radio_container, select_sample_project, \
     create_color_by_children, create_color_by_container, create_sort_by_children, \
@@ -15,13 +20,23 @@ from containers import logo_title, create_radio_container, select_sample_project
 from helper import process_dataframe
 from samples import sample_alias
 
+
 base_path = os.getenv('POLLINATION_API_URL', 'https://api.staging.pollination.cloud')
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.BOOTSTRAP])
+app = dash.Dash(
+    __name__,
+    external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.BOOTSTRAP],
+    suppress_callback_exceptions=True
+)
 app.title = 'Design Explorer'
 server = app.server
 
-#api_key = pollination_dash_io.ApiKey()
+@server.route('/pollination/<path:path>')
+def serve_image(path):
+    directory = Path(__file__).parent.joinpath('pollination')
+    return send_from_directory(directory, path)
+
+api_key = pollination_dash_io.ApiKey()
 
 project_folder = 'assets/samples/sample'
 csv = Path(__file__).parent.joinpath('assets', 'samples', 'sample', 'data.csv')
@@ -59,11 +74,40 @@ for value in parameters.values():
             {'id': value['label'], 'name': value['display_name'], 'hidden': True})
 
 
+def hello_user(api_key: pollination_dash_io.ApiKey, base_path: str):
+    """Function to create a Div for authentication of user."""
+    hello_user_container = html.Div(children=[
+            html.Span(id='hello-user', children='Hi!', className='hi-user'),
+            pollination_dash_io.AuthUser(id='auth-user', basePath=base_path),
+            api_key.component,
+        ],
+        id='hello',
+        className='hello'
+    )
+    return hello_user_container
+
+
+def select_pollination_project():
+    """Function to create a Div for selecting a project on Pollination."""
+    select_project_container = html.Div(children=[
+        html.Div(id='select-account-container', className='pollination-dropdown'),
+        html.Div(id='select-project-container', className='pollination-dropdown'),
+        html.Div(id='select-artifact-container', className='pollination-dropdown')
+        ],
+        id='select-pollination-project',
+        className='select-pollination-project'
+    )
+
+    return select_project_container
+
+
 app.layout = dbc.Container([
     #api_key.component,
     logo_title(app),
+    hello_user(api_key, base_path),
     create_radio_container(),
     select_sample_project(),
+    select_pollination_project(),
     # pollination_dash_io.AuthUser(id='auth-user', basePath=base_path),
     # pollination_dash_io.SelectAccount(id='select-account', basePath=base_path),
     # pollination_dash_io.SelectProject(id='select-project', basePath=base_path),
@@ -89,6 +133,163 @@ app.layout = dbc.Container([
         style_table={'padding': '20px'},
         sort_action='native')
 ], style={'padding': '20px'}, fluid=True)
+
+
+api_key.create_api_key_callback(
+    app=app,
+    component_ids=['auth-user']
+)
+
+
+@app.callback(
+    [Output('hello-user', 'children'),
+     Output('hello', 'style')],
+    Input('auth-user', 'authUser'),
+    prevent_initial_call=True
+)
+def update_hello(authUser):
+    msg = f'Hi {authUser["name"]}!'
+    return msg, {'visibility': 'visible'}
+
+
+@app.callback(
+    Output('select-artifact-container', 'children'),
+    [Input('select-project', 'project'),
+     State('auth-user', 'apiKey')],
+    prevent_initial_call=True
+)
+def update_select_artifact_container(project, apiKey):
+    """Function to change the children of select-artifact-container."""
+    if project is None:
+        return dash.no_update
+    project_owner = project['owner']['name']
+    project_name = project['name']
+    select_cloud_artifact = \
+        pollination_dash_io.SelectCloudArtifact(id='select-artifact',
+                                                projectOwner=project_owner,
+                                                projectName=project_name,
+                                                basePath=base_path,
+                                                apiKey=apiKey,
+                                                fileNameMatch='.zip')
+
+    return select_cloud_artifact
+
+
+@app.callback(
+    Output('select-project-container', 'children'),
+    [Input('select-account', 'account'),
+     State('auth-user', 'apiKey')],
+    prevent_initial_call=True
+)
+def update_select_project_container(account, apiKey):
+    """Function to change the children of select-project-container."""
+    if account is None:
+        return dash.no_update
+    project_owner = account.get('account_name') or account.get('username')
+    select_project = \
+        pollination_dash_io.SelectProject(id='select-project',
+                                          projectOwner=project_owner,
+                                          basePath=base_path,
+                                          apiKey=apiKey)
+    return select_project
+
+
+@app.callback(
+    [Output('select-account-container', 'children'),
+     Output('select-sample', 'style'),
+     Output('select-pollination-project', 'style')],
+    [Input('radio-items-input', 'value'),
+     State('auth-user', 'apiKey')],
+    prevent_initial_call=True
+)
+def update_select_account_container(value, apiKey):
+    """Function to change the children of select-account-container."""
+    if value:
+        select_cloud_artifact = \
+            pollination_dash_io.SelectAccount(id='select-account',
+                                              basePath=base_path,
+                                              apiKey=apiKey)
+        return select_cloud_artifact, {'display': 'none'}, {'display': 'flex'}
+    else:
+        return dash.no_update, {}, {'display': 'none'}
+
+
+@app.callback(
+    [Output('project-folder', 'data', allow_duplicate=True),
+     Output('df', 'data', allow_duplicate=True),
+     Output('active-records', 'data', allow_duplicate=True),
+     Output('active-filters', 'data', allow_duplicate=True),
+     Output('df-columns', 'data', allow_duplicate=True),
+     Output('labels', 'data', allow_duplicate=True),
+     Output('img-column', 'data', allow_duplicate=True),
+     Output('parameters', 'data', allow_duplicate=True),
+     Output('parallel-coordinates', 'figure', allow_duplicate=True),
+     Output('sort-by', 'children', allow_duplicate=True),
+     Output('color-by', 'children', allow_duplicate=True),
+     Output('table', 'columns', allow_duplicate=True),
+     Output('selected-image-container', 'style', allow_duplicate=True),
+     Output('images-grid', 'style', allow_duplicate=True)],
+    [Input('select-artifact', 'value'),
+     State('select-artifact', 'name'),
+     State('select-project', 'project')],
+    prevent_initial_call=True
+)
+def load_project_from_pollination(value, name, project):
+    if value is None or name is None:
+        return dash.no_update
+
+    bytes_value = base64.b64decode(value)
+    file = Path(name)
+    extension = file.suffix
+    if extension == '.csv':
+        return dash.no_update
+    elif extension == '.zip':
+        zip_file_like = BytesIO(bytes_value)
+        output_folder = Path(__file__).parent.joinpath('pollination', project['owner']['id'], project['id'], file.stem)
+        project_folder = f'/pollination/{project["owner"]["id"]}/{project["id"]}/{file.stem}'
+        with zipfile.ZipFile(zip_file_like, 'r') as zip_file:
+            zip_file.extractall(output_folder)
+        csv_file = output_folder.joinpath('data.csv')
+        assert csv_file.exists(), 'File data.csv does not exists in zip file.'
+        dff = pd.read_csv(csv_file)
+        df_records = dff.to_dict('records')
+
+        labels, parameters, input_columns, output_columns, image_columns = \
+            process_dataframe(dff)
+
+        if output_columns:
+            color_by = output_columns[0]
+            sort_by = output_columns[0]
+        else:
+            color_by = input_columns[0]
+            sort_by = output_columns[0]
+
+        fig = px.parallel_coordinates(dff, color=color_by, labels=labels)
+
+        img_column = dff.filter(regex=f'^Img:').columns[0]
+
+        columns = []
+        for value in parameters.values():
+            if value['type'] != 'Img':
+                columns.append({'id': value['label'], 'name': value['display_name']})
+            else:
+                columns.append(
+                    {'id': value['label'], 'name': value['display_name'], 'hidden': True})
+
+        sort_by_children = create_sort_by_children(parameters, sort_by)
+        color_by_children = create_color_by_children(parameters, color_by)
+
+        active_filters = {}
+        selected_image_container_style = {}
+        image_grid_style = {}
+
+        return (project_folder, df_records, df_records, active_filters, dff.columns,
+                labels, img_column, parameters, fig, sort_by_children,
+                color_by_children, columns, selected_image_container_style,
+                image_grid_style)
+    else:
+        raise ValueError('Wrong file type!')
+    return dash.no_update
 
 
 @app.callback(

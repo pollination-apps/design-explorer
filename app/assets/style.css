@@ -7,10 +7,49 @@ body {
   margin: 0 auto;
 }
 
+.hello {
+  display: flex;
+  gap: 10px;
+  /* background-color: yellowgreen; */
+  padding: 20px;
+  /* border-style: solid;
+  border-width: 1px;
+  align-items: center; */
+  /* border-color: black; */
+  visibility: hidden;
+}
+
+.select-pollination-project {
+  display: none;
+  /* background-color: chocolate; */
+  /* padding: 20px; */
+  padding: 20px;
+  /* justify-content: space-between;
+  border-style: solid;
+  border-width: 1px; */
+}
+
+.select-pollination-project:empty {
+  display: none;
+}
+
+.pollination-dropdown {
+  width: 30%;
+  /* padding: 20px; */
+  /* background-color: limegreen; */
+}
+
+.pollination-dropdown:empty {
+  display: hidden;
+}
+
 .images {
   display: flex;
   /* padding: 20px; */
   /* background-color: lavender; */
+  /* border-style: solid;
+  border-width: 1px;
+  align-items: center; */
 }
 
 .images-grid {
@@ -78,6 +117,9 @@ body {
   padding: 20px;
   gap: 10px;
   /* background-color: mediumaquamarine; */
+  /* border-style: solid;
+  border-width: 1px;
+  align-items: center; */
 }
 
 .color-by {
@@ -86,6 +128,9 @@ body {
   padding: 20px;
   gap: 10px;
   /* background-color: lightblue; */
+  /* border-style: solid;
+  border-width: 1px;
+  align-items: center; */
 }
 
 .color-by-label {
@@ -98,6 +143,9 @@ body {
   padding: 20px;
   gap: 10px;
   /* background-color: lightblue; */
+  /* border-style: solid;
+  border-width: 1px;
+  align-items: center; */
 }
 
 .sort-by-label {
@@ -119,6 +167,8 @@ body {
   padding: 20px;
   gap: 10px;
   align-items: center;
+  /* border-style: solid; */
+  /* border-width: 1px; */
 }
 
 .logo {
@@ -127,5 +177,10 @@ body {
 
 .app-name {
   font-size: 2em;
+  font-weight: bold;
+}
+
+.hi-user {
+  font-size: 1.5em;
   font-weight: bold;
 }
