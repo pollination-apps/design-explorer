@@ -184,3 +184,56 @@ body {
   font-size: 1.5em;
   font-weight: bold;
 }
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* @-webkit-keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+} */
+
+.custom-spinner .dash-spinner {
+  display: none;
+}
+
+.custom-spinner::before {
+  content: url('./pollination.svg');
+  display: block;
+  width: 10vmin;
+  margin: auto;
+  animation: spin 1s ease-in-out infinite;
+}
+
+/* .svg-spinner {
+  display: none;
+  width: 60px;
+  height: auto;
+  animation: spin 1s ease-in-out infinite;
+} */
+
+
+._dash-loading {
+  margin: auto;
+  color: transparent;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+}
+
+._dash-loading::after {
+  content: url('./pollination.svg');
+  position: absolute;
+  justify-content: center;
+  align-items: center;
+  top: 50%;
+  left: 50%;
+  translate: -20vmin -20vmin;
+  width: 40vmin;
+  height: auto;
+  -webkit-animation: spin 1.5s ease-in-out infinite;
+  animation: spin 1.5s ease-in-out infinite;
+}
