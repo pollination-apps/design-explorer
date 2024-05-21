@@ -55,6 +55,7 @@ else:
     sort_by = output_columns[0]
 
 fig = px.parallel_coordinates(df, color=color_by, labels=labels)
+# fig.update_traces(unselected_line_opacity=0)
 
 img_column = df.filter(regex=f'^Img:').columns[0]
 
@@ -115,7 +116,8 @@ app.layout = dbc.Container([
     #pollination_dash_io.SelectCloudArtifact(id='select-artifact', basePath=base_path),
     create_color_by_container(parameters, color_by),
     dcc.Store(id='project-folder', data=project_folder),
-    dcc.Store(id='df', data=df_records),
+    dcc.Loading(children=[dcc.Store(id='df', data=df_records)],
+        className='custom-spinner', type='default', fullscreen=True),
     dcc.Store(id='df-columns', data=df.columns),
     dcc.Store(id='labels', data=labels),
     dcc.Store(id='parameters', data=parameters),
