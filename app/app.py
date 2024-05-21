@@ -57,7 +57,7 @@ else:
 fig = px.parallel_coordinates(df, color=color_by, labels=labels)
 # fig.update_traces(unselected_line_opacity=0)
 
-img_column = df.filter(regex=f'^Img:').columns[0]
+img_column = df.filter(regex=f'^img:').columns[0]
 
 images_div = []
 minimum, maximum = df[color_by].min(), df[color_by].max()
@@ -68,7 +68,7 @@ images_grid_children = create_images_grid_children(
 
 columns = []
 for value in parameters.values():
-    if value['type'] != 'Img':
+    if value['type'] != 'img':
         columns.append({'id': value['label'], 'name': value['display_name']})
     else:
         columns.append(
@@ -268,11 +268,11 @@ def load_project_from_pollination(value, name, project):
 
         fig = px.parallel_coordinates(dff, color=color_by, labels=labels)
 
-        img_column = dff.filter(regex=f'^Img:').columns[0]
+        img_column = dff.filter(regex=f'^img:').columns[0]
 
         columns = []
         for value in parameters.values():
-            if value['type'] != 'Img':
+            if value['type'] != 'img':
                 columns.append({'id': value['label'], 'name': value['display_name']})
             else:
                 columns.append(
@@ -337,11 +337,11 @@ def update_sample_project(n_clicks):
 
     fig = px.parallel_coordinates(dff, color=color_by, labels=labels)
 
-    img_column = dff.filter(regex=f'^Img:').columns[0]
+    img_column = dff.filter(regex=f'^img:').columns[0]
 
     columns = []
     for value in parameters.values():
-        if value['type'] != 'Img':
+        if value['type'] != 'img':
             columns.append({'id': value['label'], 'name': value['display_name']})
         else:
             columns.append(
@@ -534,8 +534,8 @@ def update_images_grid(
 
     The data coming from table is a list. Here is an example:
     [
-        {'In:X': 1, 'In:Y': 4, 'In:Z': 3.6, 'Img:Perspective': 'X_1_Y_4_Z_3.6.png'},
-        {'In:X': 2, 'In:Y': 4, 'In:Z': 3.6, 'Img:Perspective': 'X_2_Y_4_Z_3.6.png'}
+        {'in:X': 1, 'in:Y': 4, 'in:Z': 3.6, 'img:Perspective': 'X_1_Y_4_Z_3.6.png'},
+        {'in:X': 2, 'in:Y': 4, 'in:Z': 3.6, 'img:Perspective': 'X_2_Y_4_Z_3.6.png'}
     ]
     """
     images_div = []
