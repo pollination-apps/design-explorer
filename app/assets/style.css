@@ -11,7 +11,7 @@ body {
   display: flex;
   gap: 10px;
   /* background-color: yellowgreen; */
-  padding: 20px;
+  padding: 5px 20px 5px 20px;
   /* border-style: solid;
   border-width: 1px;
   align-items: center; */
@@ -22,8 +22,7 @@ body {
 .select-pollination-project {
   display: none;
   /* background-color: chocolate; */
-  /* padding: 20px; */
-  padding: 20px;
+  padding: 5px 20px 5px 20px;
   justify-content: space-between;
   /* border-style: solid;
   border-width: 1px; */
@@ -45,6 +44,8 @@ body {
 
 .images {
   display: flex;
+  width: 100%;
+  padding: 5px 20px 5px 20px;
   /* padding: 20px; */
   /* background-color: lavender; */
   /* border-style: solid;
@@ -60,7 +61,7 @@ body {
   grid-gap: 7px;
   grid-row-gap: 7px;
   width: 100%;
-  padding: 20px;
+  /* padding: 20px; */
   grid-auto-rows: min-content;
   /* background-color: mintcream; */
   transition: width 0.3s;
@@ -88,7 +89,7 @@ body {
 .selected-image-container {
   display: flex;
   width: 0;
-  overflow: hidden;
+  /* overflow: hidden; */
   /* background-color: burlywood; */
   /* align-items: center; */
   /* padding: 20px; */
@@ -96,25 +97,36 @@ body {
   transition: width 0.3s;
 }
 
+.selected-image-wrapper {
+  flex: 1 1 auto;
+  /* align-items: center; */
+  /* justify-content: center; */
+  /* box-sizing: border-box; */
+  overflow: hidden;
+}
+
 .selected-image {
   max-width: 100%;
-  width: auto;
+  height: auto;
+  /* width: auto; */
+  /* flex-shrink: 1; */
   cursor: pointer;
   /* border-style: solid; */
   /* border-width: 0.2cqw; */
   /* border-color: black; */
-  padding: 20px;
+  /* padding: 20px; */
 }
 
 .selected-image-info {
-  padding: 20px;
+  flex: 0 1 auto;
+  /* padding: 20px; */
   white-space: nowrap;
 }
 
 .radio-items {
   display: flex;
   align-items: center;
-  padding: 20px;
+  padding: 5px 20px 5px 20px;
   gap: 10px;
   /* background-color: mediumaquamarine; */
   /* border-style: solid;
@@ -125,7 +137,7 @@ body {
 .color-by {
   display: flex;
   align-items: center;
-  padding: 20px;
+  padding: 5px 20px 5px 20px;
   gap: 10px;
   /* background-color: lightblue; */
   /* border-style: solid;
@@ -140,7 +152,7 @@ body {
 .sort-by {
   display: flex;
   align-items: center;
-  padding: 20px;
+  padding: 5px 20px 5px 20px;
   gap: 10px;
   /* background-color: lightblue; */
   /* border-style: solid;
