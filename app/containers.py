@@ -61,7 +61,7 @@ def select_sample_project() -> html.Div:
     select_sample_label = html.Label(children='Select sample', className='color-by-label')
 
     select_sample_container = html.Div(
-        className='color-by',
+        className='select-sample',
         id='select-sample',
         children=[select_sample_label, dropdown_menu]
     )
