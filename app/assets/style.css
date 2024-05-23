@@ -19,10 +19,21 @@ body {
   visibility: hidden;
 }
 
+.select-sample {
+  display: flex;
+  align-items: center;
+  padding: 5px 20px 20px 20px;
+  gap: 10px;
+  /* background-color: lightblue; */
+  /* border-style: solid;
+  border-width: 1px;
+  align-items: center; */
+}
+
 .select-pollination-project {
   display: none;
   /* background-color: chocolate; */
-  padding: 5px 20px 5px 20px;
+  padding: 5px 20px 20px 20px;
   justify-content: space-between;
   /* border-style: solid;
   border-width: 1px; */
