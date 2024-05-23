@@ -49,6 +49,7 @@ def select_sample_project() -> html.Div:
     children = []
     children.append(dbc.DropdownMenuItem('Sample', id={'select_sample_project': 'sample'}))
     children.append(dbc.DropdownMenuItem('Daylight Factor', id={'select_sample_project': 'daylight-factor'}))
+    children.append(dbc.DropdownMenuItem('Sample Without Images', id={'select_sample_project': 'sample-without-img'}))
     dropdown_menu = dbc.DropdownMenu(
         id='select-sample-dropdown',
         label='Sample',
@@ -76,12 +77,12 @@ def create_color_by_children(parameters, color_by) -> List[html.Div]:
     children_output = []
     for value in parameters.values():
         label = value['label']
-        if value['type'] == 'In':
+        if value['type'] == 'in':
             children_input.append(
                 dbc.DropdownMenuItem(value['display_name'],
                                      id={'color_by_dropdown': f'{label}'})
             )
-        if value['type'] == 'Out':
+        if value['type'] == 'out':
             children_output.append(
                 dbc.DropdownMenuItem(value['display_name'],
                                      id={'color_by_dropdown': f'{label}'})
@@ -131,12 +132,12 @@ def create_sort_by_children(parameters, sort_by) -> html.Div:
     children_output = []
     for value in parameters.values():
         label = value['label']
-        if value['type'] == 'In':
+        if value['type'] == 'in':
             children_input.append(
                 dbc.DropdownMenuItem(value['display_name'],
                                      id={'sort_by_dropdown': f'{label}'})
             )
-        if value['type'] == 'Out':
+        if value['type'] == 'out':
             children_output.append(
                 dbc.DropdownMenuItem(value['display_name'],
                                      id={'sort_by_dropdown': f'{label}'})
@@ -224,7 +225,9 @@ def create_images_container(images_div) -> html.Div:
         dcc.Store(id='selected-image-data'),
         html.Div([
             html.Div(id='selected-image-info', className='selected-image-info'),
-            html.Img(id='selected-image', className='selected-image')
+            html.Div(
+                children=[html.Img(id='selected-image', className='selected-image')],
+                id='selected-image-wrapper', className='selected-image-wrapper')
         ], id='selected-image-container', className='selected-image-container'),
         html.Div(children=images_div,
                  id='images-grid',

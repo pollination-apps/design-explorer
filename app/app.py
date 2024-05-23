@@ -229,6 +229,7 @@ def update_select_account_container(value, apiKey):
      Output('sort-by', 'children', allow_duplicate=True),
      Output('color-by', 'children', allow_duplicate=True),
      Output('table', 'columns', allow_duplicate=True),
+     Output('selected-image-info', 'children', allow_duplicate=True),
      Output('selected-image-container', 'style', allow_duplicate=True),
      Output('images-grid', 'style', allow_duplicate=True)],
     [Input('select-artifact', 'value'),
@@ -282,13 +283,14 @@ def load_project_from_pollination(value, name, project):
         color_by_children = create_color_by_children(parameters, color_by)
 
         active_filters = {}
+        selected_image_info = None
         selected_image_container_style = {}
         image_grid_style = {}
 
         return (project_folder, df_records, df_records, active_filters, dff.columns,
                 labels, img_column, parameters, fig, sort_by_children,
-                color_by_children, columns, selected_image_container_style,
-                image_grid_style)
+                color_by_children, columns, selected_image_info,
+                selected_image_container_style, image_grid_style)
     else:
         raise ValueError('Wrong file type!')
     return dash.no_update
@@ -308,6 +310,7 @@ def load_project_from_pollination(value, name, project):
      Output('sort-by', 'children', allow_duplicate=True),
      Output('color-by', 'children', allow_duplicate=True),
      Output('table', 'columns', allow_duplicate=True),
+     Output('selected-image-info', 'children', allow_duplicate=True),
      Output('selected-image-container', 'style', allow_duplicate=True),
      Output('images-grid', 'style', allow_duplicate=True)],
     Input({'select_sample_project': ALL}, 'n_clicks'),
@@ -337,7 +340,11 @@ def update_sample_project(n_clicks):
 
     fig = px.parallel_coordinates(dff, color=color_by, labels=labels)
 
-    img_column = dff.filter(regex=f'^img:').columns[0]
+    img_columns = dff.filter(regex=f'^img:').columns
+    if img_columns.empty:
+        img_column = None
+    else:
+        img_column = img_columns[0]
 
     columns = []
     for value in parameters.values():
@@ -351,12 +358,13 @@ def update_sample_project(n_clicks):
     color_by_children = create_color_by_children(parameters, color_by)
 
     active_filters = {}
+    selected_image_info = None
     selected_image_container_style = {}
     image_grid_style = {}
 
     return (project_folder, df_records, df_records, active_filters, dff.columns,
             labels, img_column, parameters, fig, select_sample_dropdown_label,
-            sort_by_children, color_by_children, columns,
+            sort_by_children, color_by_children, columns, selected_image_info,
             selected_image_container_style, image_grid_style)
 
 
@@ -428,8 +436,21 @@ def update_color_by(n_clicks, df_records, labels, figure):
 
 
 @app.callback(
-    [Output('selected-image-data', 'data'),
-     Output('selected-image-info', 'children')],
+    Output('images-grid-div', 'style'),
+    Input('img-column', 'data'),
+    prevent_initial_call=True
+)
+def update_images_grid_div_display(img_column):
+    """If img-column is None, the display is changed to none."""
+    if img_column is None:
+        return {'display': 'none'}
+    else:
+        return {}
+
+
+@app.callback(
+    [Output('selected-image-data', 'data', allow_duplicate=True),
+     Output('selected-image-info', 'children', allow_duplicate=True)],
     [Input({'image': ALL}, 'n_clicks'),
      State('df', 'data'),
      State('labels', 'data'),
@@ -538,6 +559,8 @@ def update_images_grid(
         {'in:X': 2, 'in:Y': 4, 'in:Z': 3.6, 'img:Perspective': 'X_2_Y_4_Z_3.6.png'}
     ]
     """
+    if img_column is None:
+        return []
     images_div = []
     if color_by_column:
         dff = pd.DataFrame.from_records(df_records)
