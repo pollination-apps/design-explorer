@@ -102,9 +102,29 @@ def select_pollination_project():
     return select_project_container
 
 
+def info_box():
+    info_box = html.Div(
+        dbc.Row([
+            dbc.Col(html.P(
+                'This app is a work in progress. The aim is to build an app '
+                'that can be used in an integrated workflow with Pollination '
+                'Fly and Pollination Cloud. Check out the video on the right '
+                'to see how Pollination Fly works.', className='justify-text'
+            )),
+            dbc.Col(html.Iframe(
+                src='https://www.youtube.com/embed/X7hrUg71scE?si=o7zuXoT6B2IUdnXY'
+            ))]
+        ),
+        className="p-5 bg-light border rounded-3, mb-3",
+    )
+
+    return info_box
+
+
 app.layout = dbc.Container([
     #api_key.component,
     logo_title(app),
+    info_box(),
     hello_user(api_key, base_path),
     create_radio_container(),
     select_sample_project(),
@@ -143,15 +163,15 @@ api_key.create_api_key_callback(
 )
 
 
-@app.callback(
-    [Output('hello-user', 'children'),
-     Output('hello', 'style')],
-    Input('auth-user', 'authUser'),
-    prevent_initial_call=True
-)
-def update_hello(authUser):
-    msg = f'Hi {authUser["name"]}!'
-    return msg, {'visibility': 'visible'}
+# @app.callback(
+#     [Output('hello-user', 'children'),
+#      Output('hello', 'style')],
+#     Input('auth-user', 'authUser'),
+#     prevent_initial_call=True
+# )
+# def update_hello(authUser):
+#     msg = f'Hi {authUser["name"]}!'
+#     return msg, {'visibility': 'visible'}
 
 
 @app.callback(

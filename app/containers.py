@@ -30,7 +30,7 @@ def create_radio_container() -> html.Div:
             dbc.RadioItems(
                 options=[
                     {'label': 'Sample Project', 'value': False},
-                    {'label': 'Load project from Pollination', 'value': True},
+                    {'label': 'Load from a Pollination project (Coming soon)', 'value': True, 'disabled': True},
                 ],
                 value=False,
                 id='radio-items-input',
