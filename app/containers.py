@@ -47,12 +47,12 @@ def select_sample_project() -> html.Div:
     """Function to create the Div that contains the options for coloring the
     parallel coordinates by a column."""
     children = []
-    children.append(dbc.DropdownMenuItem('Sample', id={'select_sample_project': 'sample'}))
     children.append(dbc.DropdownMenuItem('Daylight Factor', id={'select_sample_project': 'daylight-factor'}))
-    children.append(dbc.DropdownMenuItem('Sample Without Images', id={'select_sample_project': 'sample-without-img'}))
+    children.append(dbc.DropdownMenuItem('Box', id={'select_sample_project': 'box'}))
+    children.append(dbc.DropdownMenuItem('Sample Without Images', id={'select_sample_project': 'box-without-img'}))
     dropdown_menu = dbc.DropdownMenu(
         id='select-sample-dropdown',
-        label='Sample',
+        label='Daylight Factor',
         children=children,
         direction='end',
         size='sm'
