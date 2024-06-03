@@ -38,8 +38,8 @@ def serve_image(path):
 
 api_key = pollination_dash_io.ApiKey()
 
-project_folder = 'assets/samples/sample'
-csv = Path(__file__).parent.joinpath('assets', 'samples', 'sample', 'data.csv')
+project_folder = 'assets/samples/daylight-factor'
+csv = Path(__file__).parent.joinpath('assets', 'samples', 'daylight-factor', 'data.csv')
 df = pd.read_csv(csv)
 df_records = df.to_dict('records')
 
