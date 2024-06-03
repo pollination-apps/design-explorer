@@ -8,7 +8,7 @@ body {
 }
 
 .hello {
-  display: flex;
+  display: none;
   gap: 10px;
   /* background-color: yellowgreen; */
   padding: 5px 20px 5px 20px;
@@ -22,7 +22,7 @@ body {
 .select-sample {
   display: flex;
   align-items: center;
-  padding: 5px 20px 20px 20px;
+  padding: 5px 20px 5px 20px;
   gap: 10px;
   /* background-color: lightblue; */
   /* border-style: solid;
@@ -206,6 +206,10 @@ body {
 .hi-user {
   font-size: 1.5em;
   font-weight: bold;
+}
+
+.justify-text {
+  text-align: justify;
 }
 
 @keyframes spin {
