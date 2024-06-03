@@ -115,7 +115,7 @@ def info_box():
                 src='https://www.youtube.com/embed/X7hrUg71scE?si=o7zuXoT6B2IUdnXY'
             ))]
         ),
-        className="p-5 bg-light border rounded-3, mb-3",
+        className='info-box',
     )
 
     return info_box
