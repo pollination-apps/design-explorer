@@ -2,13 +2,13 @@
 
 
 sample_alias = {
-    'sample': {
-        'id': 'sample',
-        'display_name': 'Sample'
+    'box': {
+        'id': 'box',
+        'display_name': 'Box'
         },
-    'sample-without-img': {
-        'id': 'sample-without-img',
-        'display_name': 'Sample Without Images'
+    'box-without-img': {
+        'id': 'box-without-img',
+        'display_name': 'Box Without Images'
         },
     'daylight-factor': {
         'id': 'daylight-factor',

@@ -26,4 +26,5 @@ tox.ini
 model.html
 
 venv/*
+.venv/*
 app/pollination/*
