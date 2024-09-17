@@ -4,6 +4,7 @@ from pathlib import Path
 import pandas as pd
 import plotly.express as px
 import pollination_dash_io
+from pollination_io.api.client import ApiClient
 import base64
 import zipfile
 from io import BytesIO
@@ -29,7 +30,7 @@ def update_select_artifact_container(project, apiKey):
     select_cloud_artifact = pollination_dash_io.SelectCloudArtifact(
         id='select-artifact', projectOwner=project_owner,
         projectName=project_name, basePath=base_path,
-        apiKey=apiKey, fileNameMatch='.zip')
+        apiKey=apiKey)
 
     return select_cloud_artifact
 
@@ -90,61 +91,137 @@ def update_select_account_container(value, apiKey):
     [Input('select-artifact', 'value'),
      Input('select-artifact', 'name'),
      Input('select-artifact', 'key'),
-     State('select-project', 'project')],
+     State('select-project', 'project'),
+     State('auth-user', 'apiKey')],
     prevent_initial_call=True
 )
-def load_project_from_pollination(value, name, key, project):
+def load_project_from_pollination(value, name, key, project, api_key):
     if value is None or name is None or key is None:
         raise PreventUpdate
 
     bytes_value = base64.b64decode(value)
     file = Path(name)
-    zip_file_like = BytesIO(bytes_value)
-    output_folder = pollination_path.joinpath(
-        project['owner']['id'], project['id'], file.stem)
-    project_folder = f'pollination/{project["owner"]["id"]}/{project["id"]}/{file.stem}'
-    with zipfile.ZipFile(zip_file_like, 'r') as zip_file:
-        zip_file.extractall(output_folder)
-    csv_file = output_folder.joinpath('data.csv')
-    assert csv_file.exists(), 'File data.csv does not exists in zip file.'
-    dff = pd.read_csv(csv_file)
-    df_records = dff.to_dict('records')
 
-    labels, parameters, input_columns, output_columns, image_columns = \
-        process_dataframe(dff)
+    if file.stem == '.zip':
+        zip_file_like = BytesIO(bytes_value)
+        output_folder = pollination_path.joinpath(
+            project['owner']['id'], project['id'], file.stem)
+        project_folder = f'pollination/{project["owner"]["id"]}/{project["id"]}/{file.stem}'
+        with zipfile.ZipFile(zip_file_like, 'r') as zip_file:
+            zip_file.extractall(output_folder)
+        csv_file = output_folder.joinpath('data.csv')
+        assert csv_file.exists(), 'File data.csv does not exists in zip file.'
+        dff = pd.read_csv(csv_file)
+        df_records = dff.to_dict('records')
 
-    if output_columns:
-        color_by = output_columns[0]
-        sort_by = output_columns[0]
-    else:
-        color_by = input_columns[0]
-        sort_by = output_columns[0]
+        labels, parameters, input_columns, output_columns, image_columns = \
+            process_dataframe(dff)
 
-    fig = px.parallel_coordinates(dff, color=color_by, labels=labels)
-
-    img_column = dff.filter(regex=f'^img:').columns[0]
-
-    columns = []
-    for value in parameters.values():
-        if value['type'] != 'img':
-            columns.append(
-                {'id': value['label'],
-                 'name': value['display_name']})
+        if output_columns:
+            color_by = output_columns[0]
+            sort_by = output_columns[0]
         else:
-            columns.append(
-                {'id': value['label'],
-                 'name': value['display_name'],
-                 'hidden': True})
+            color_by = input_columns[0]
+            sort_by = output_columns[0]
 
-    sort_by_children = create_sort_by_children(parameters, sort_by)
-    color_by_children = create_color_by_children(parameters, color_by)
+        fig = px.parallel_coordinates(dff, color=color_by, labels=labels)
 
-    active_filters = {}
-    selected_image_info = None
-    selected_image_container_style = {}
-    image_grid_style = {}
+        img_column = dff.filter(regex=f'^img:').columns[0]
 
-    return (project_folder, df_records, df_records, active_filters, dff.columns,
-            labels, img_column, parameters, fig, sort_by_children,
-            color_by_children, columns, selected_image_info,
-            selected_image_container_style, image_grid_style, {})
+        columns = []
+        for value in parameters.values():
+            if value['type'] != 'img':
+                columns.append(
+                    {'id': value['label'],
+                     'name': value['display_name']})
+            else:
+                columns.append(
+                    {'id': value['label'],
+                     'name': value['display_name'],
+                     'hidden': True})
+
+        sort_by_children = create_sort_by_children(parameters, sort_by)
+        color_by_children = create_color_by_children(parameters, color_by)
+
+        active_filters = {}
+        selected_image_info = None
+        selected_image_container_style = {}
+        image_grid_style = {}
+
+        return (project_folder, df_records, df_records, active_filters, dff.columns,
+                labels, img_column, parameters, fig, sort_by_children,
+                color_by_children, columns, selected_image_info,
+                selected_image_container_style, image_grid_style, {})
+    else:
+        csv_pollination_folder = Path(key).parent
+        output_folder = pollination_path.joinpath(
+            project['owner']['id'], project['id'], csv_pollination_folder)
+        project_folder = f'pollination/{project["owner"]["id"]}/{project["id"]}/{csv_pollination_folder}'
+        csv_path = output_folder.joinpath(name)
+        csv_path.parent.mkdir(parents=True, exist_ok=True)
+        bytes_value = BytesIO(bytes_value)
+        with open(csv_path, 'wb') as file:
+            file.write(bytes_value.getvalue())
+
+        dff = pd.read_csv(csv_path)
+        df_records = dff.to_dict('records')
+
+        labels, parameters, input_columns, output_columns, image_columns = \
+            process_dataframe(dff)
+
+        if output_columns:
+            color_by = output_columns[0]
+            sort_by = output_columns[0]
+        else:
+            color_by = input_columns[0]
+            sort_by = output_columns[0]
+
+        fig = px.parallel_coordinates(dff, color=color_by, labels=labels)
+
+        img_columns = dff.filter(regex=f'^img:').columns
+        if img_columns.empty:
+            img_column = None
+        else:
+            img_column = img_columns[0]
+
+        columns = []
+        for value in parameters.values():
+            if value['type'] != 'img':
+                columns.append(
+                    {'id': value['label'],
+                     'name': value['display_name']})
+            else:
+                columns.append(
+                    {'id': value['label'],
+                     'name': value['display_name'],
+                     'hidden': True})
+
+        sort_by_children = create_sort_by_children(parameters, sort_by)
+        color_by_children = create_color_by_children(parameters, color_by)
+
+        active_filters = {}
+        selected_image_info = None
+        selected_image_container_style = {}
+        image_grid_style = {}
+
+        if img_column:
+            client = ApiClient(host=base_path, api_token=api_key)
+            url = Path(
+                'projects', project['owner']['name'],
+                project['name'],
+                'artifacts', 'download')
+            images = dff[img_column]
+            for image in images:
+                params = {
+                    'path': csv_pollination_folder.joinpath(image).as_posix()
+                }
+                signed_url = client.get(url.as_posix(), params=params)
+                img_bytes = client.download_artifact(signed_url)
+                img_path = output_folder.joinpath(image)
+                with img_path.open('wb') as file:
+                    file.write(img_bytes.getvalue())
+
+        return (project_folder, df_records, df_records, active_filters, dff.columns,
+                labels, img_column, parameters, fig, sort_by_children,
+                color_by_children, columns, selected_image_info,
+                selected_image_container_style, image_grid_style, {})
