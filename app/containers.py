@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import List
 from dash import html, dcc
 import dash_bootstrap_components as dbc
+import pollination_dash_io
 
 
 def logo_title(app) -> html.Div:
@@ -21,6 +22,38 @@ def logo_title(app) -> html.Div:
     )
 
     return container
+
+
+def info_box():
+    info_box = html.Div(
+        dbc.Row([
+            dbc.Col(html.P(
+                'This app is a work in progress. The aim is to build an app '
+                'that can be used in an integrated workflow with Pollination '
+                'Fly and Pollination Cloud. Check out the video on the right '
+                'to see how Pollination Fly works.', className='justify-text'
+            )),
+            dbc.Col(html.Iframe(
+                src='https://www.youtube.com/embed/X7hrUg71scE?si=o7zuXoT6B2IUdnXY'
+            ))]
+        ),
+        className='info-box',
+    )
+
+    return info_box
+
+
+def hello_user(api_key: pollination_dash_io.ApiKey, base_path: str):
+    """Function to create a Div for authentication of user."""
+    hello_user_container = html.Div(children=[
+            html.Span(id='hello-user', children='Hi!', className='hi-user'),
+            pollination_dash_io.AuthUser(id='auth-user', basePath=base_path),
+            api_key.component,
+        ],
+        id='hello',
+        className='hello'
+    )
+    return hello_user_container
 
 
 def create_radio_container() -> html.Div:
@@ -41,6 +74,20 @@ def create_radio_container() -> html.Div:
         className='radio-items'
     )
     return container
+
+
+def select_pollination_project():
+    """Function to create a Div for selecting a project on Pollination."""
+    select_project_container = html.Div(children=[
+        html.Div(id='select-account-container', className='pollination-dropdown'),
+        html.Div(id='select-project-container', className='pollination-dropdown'),
+        html.Div(id='select-artifact-container', className='pollination-dropdown')
+        ],
+        id='select-pollination-project',
+        className='select-pollination-project'
+    )
+
+    return select_project_container
 
 
 def select_sample_project() -> html.Div:
@@ -205,16 +252,9 @@ def create_images_grid_children(
     return children
 
 
-def create_images_container(images_div, parameters, sort_by) -> html.Div:
+def create_images_container(images_div) -> html.Div:
     """Function to create a Div for images."""
-    children = create_sort_by_children(parameters, sort_by)
-    sort_container = html.Div(
-        children=children,
-        className='sort-by',
-        id='sort-by'
-    )
-
-    images_grid_container = html.Div([
+    images_container = html.Div([
         dcc.Store(id='selected-image-data'),
         html.Div([
             html.Div(id='selected-image-info', className='selected-image-info'),
@@ -226,15 +266,20 @@ def create_images_container(images_div, parameters, sort_by) -> html.Div:
                  id='images-grid',
                  className='images-grid')
         ],
-        id='images-grid-div', className='images'
-    )
-
-    images_container = html.Div(
-        [
-            sort_container,
-            images_grid_container
-        ],
-        id='images-container'
+        id='images-container', className='images-container'
     )
 
     return images_container
+
+
+def create_sort_by_container(parameters, sort_by) -> html.Div:
+    """Function to create the Div that contains the options for sorting the
+    images by a column."""
+    children = create_sort_by_children(parameters, sort_by)
+    sort_container = html.Div(
+        children=children,
+        className='sort-by',
+        id='sort-by'
+    )
+
+    return sort_container
