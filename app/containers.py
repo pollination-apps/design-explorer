@@ -30,7 +30,7 @@ def create_radio_container() -> html.Div:
             dbc.RadioItems(
                 options=[
                     {'label': 'Sample Project', 'value': False},
-                    {'label': 'Load from a Pollination project (Coming soon)', 'value': True, 'disabled': True},
+                    {'label': 'Load from a Pollination project (Coming soon)', 'value': True},
                 ],
                 value=False,
                 id='radio-items-input',
@@ -49,7 +49,7 @@ def select_sample_project() -> html.Div:
     children = []
     children.append(dbc.DropdownMenuItem('Daylight Factor', id={'select_sample_project': 'daylight-factor'}))
     children.append(dbc.DropdownMenuItem('Box', id={'select_sample_project': 'box'}))
-    children.append(dbc.DropdownMenuItem('Sample Without Images', id={'select_sample_project': 'box-without-img'}))
+    children.append(dbc.DropdownMenuItem('Box Without Images', id={'select_sample_project': 'box-without-img'}))
     dropdown_menu = dbc.DropdownMenu(
         id='select-sample-dropdown',
         label='Daylight Factor',
@@ -173,20 +173,6 @@ def create_sort_by_children(parameters, sort_by) -> html.Div:
     return children
 
 
-def create_sort_by_container(parameters, sort_by) -> html.Div:
-    """Function to create the Div that contains the options for sorting the
-    images in the grid."""
-    children = create_sort_by_children(parameters, sort_by)
-
-    sort_container = html.Div(
-        children=children,
-        className='sort-by',
-        id='sort-by'
-    )
-
-    return sort_container
-
-
 def create_images_grid_children(
         sorted_df_records, color_by, minimum, maximum, img_column,
         project_folder) -> List[html.Div]:
@@ -219,9 +205,16 @@ def create_images_grid_children(
     return children
 
 
-def create_images_container(images_div) -> html.Div:
+def create_images_container(images_div, parameters, sort_by) -> html.Div:
     """Function to create a Div for images."""
-    images_container = html.Div([
+    children = create_sort_by_children(parameters, sort_by)
+    sort_container = html.Div(
+        children=children,
+        className='sort-by',
+        id='sort-by'
+    )
+
+    images_grid_container = html.Div([
         dcc.Store(id='selected-image-data'),
         html.Div([
             html.Div(id='selected-image-info', className='selected-image-info'),
@@ -234,6 +227,14 @@ def create_images_container(images_div) -> html.Div:
                  className='images-grid')
         ],
         id='images-grid-div', className='images'
+    )
+
+    images_container = html.Div(
+        [
+            sort_container,
+            images_grid_container
+        ],
+        id='images-container'
     )
 
     return images_container
