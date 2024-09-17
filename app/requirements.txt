@@ -1,5 +1,6 @@
 gunicorn>=22.0.0
-pollination-dash-io>=1.13.0
+pollination-io>=1.0.3
+pollination-dash-io>=1.13.1
 dash-renderjson>=0.0.1
 dash-bootstrap-components>=1.6.0
 pandas>=2.2.2
