@@ -1,3 +1,4 @@
+"""Module for sample callbacks."""
 import dash
 from dash import ALL, ctx
 from dash.dependencies import Input, Output
@@ -26,7 +27,9 @@ from config import assets_path
      Output('table', 'columns', allow_duplicate=True),
      Output('selected-image-info', 'children', allow_duplicate=True),
      Output('selected-image-container', 'style', allow_duplicate=True),
-     Output('images-grid', 'style', allow_duplicate=True)],
+     Output('main-images-container', 'style', allow_duplicate=True),
+     Output('images-grid', 'style', allow_duplicate=True),
+     Output('selected-image-container', 'style')],
     Input({'select_sample_project': ALL}, 'n_clicks'),
     prevent_initial_call=True
 )
@@ -62,10 +65,14 @@ def update_sample_project(n_clicks):
     columns = []
     for value in parameters.values():
         if value['type'] != 'img':
-            columns.append({'id': value['label'], 'name': value['display_name']})
+            columns.append(
+                {'id': value['label'],
+                 'name': value['display_name']})
         else:
             columns.append(
-                {'id': value['label'], 'name': value['display_name'], 'hidden': True})
+                {'id': value['label'],
+                 'name': value['display_name'],
+                 'hidden': True})
 
     sort_by_children = create_sort_by_children(parameters, sort_by)
     color_by_children = create_color_by_children(parameters, color_by)
@@ -73,11 +80,14 @@ def update_sample_project(n_clicks):
     active_filters = {}
     selected_image_info = None
     selected_image_container_style = {}
-    images_container_style = {}
+    main_images_container_style = {}
+    images_grid_style = {}
+    selected_image_container_style = {}
     if not img_column:
-        images_container_style = {'display': 'none'}
+        main_images_container_style = {'display': 'none'}
 
     return (project_folder, df_records, df_records, active_filters, dff.columns,
             labels, img_column, parameters, fig, select_sample_dropdown_label,
             sort_by_children, color_by_children, columns, selected_image_info,
-            selected_image_container_style, images_container_style)
+            selected_image_container_style, main_images_container_style,
+            images_grid_style, selected_image_container_style)

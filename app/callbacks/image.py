@@ -1,7 +1,8 @@
+"""Module for image callbacks."""
+from pathlib import Path
 import dash
 from dash import html, ALL, ctx
 from dash.dependencies import Input, Output, State
-from pathlib import Path
 import pandas as pd
 import plotly.express as px
 import numpy as np
@@ -104,12 +105,12 @@ def update_selected_image_table(
         'width': '75%'
     }
 
-    image_grid_style = {
+    images_grid_style = {
         'grid-template-columns': 'repeat(auto-fill, minmax(10%, 1fr))',
         'width': '25%'
     }
 
-    return src, selected_image_container_style, image_grid_style
+    return src, selected_image_container_style, images_grid_style
 
 
 @dash.callback(
@@ -129,8 +130,8 @@ def update_click_selected_image(n_clicks):
     style of images-grid is also reset to its original state."""
     if n_clicks is not None:
         selected_image_container_style = {}
-        image_grid_style = {}
-        return None, None, None, None, selected_image_container_style, image_grid_style
+        images_grid_style = {}
+        return None, None, None, None, selected_image_container_style, images_grid_style
 
 
 @dash.callback(

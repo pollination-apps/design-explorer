@@ -1,8 +1,8 @@
 """Module with function to create containers for the app layout."""
+from typing import List
+from pathlib import Path
 import numpy as np
 import plotly.express as px
-from pathlib import Path
-from typing import List
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 import pollination_dash_io
@@ -16,8 +16,8 @@ def logo_title(app) -> html.Div:
                  src=app.get_asset_url('pollination.svg'),
                  className='logo'),
         html.Span(children='Design Explorer (WIP)',
-                className='app-name')
-        ],
+                  className='app-name')
+    ],
         className='logo-title'
     )
 
@@ -46,10 +46,10 @@ def info_box():
 def hello_user(api_key: pollination_dash_io.ApiKey, base_path: str):
     """Function to create a Div for authentication of user."""
     hello_user_container = html.Div(children=[
-            html.Span(id='hello-user', children='Hi!', className='hi-user'),
-            pollination_dash_io.AuthUser(id='auth-user', basePath=base_path),
-            api_key.component,
-        ],
+        html.Span(id='hello-user', children='Hi!', className='hi-user'),
+        pollination_dash_io.AuthUser(id='auth-user', basePath=base_path),
+        api_key.component,
+    ],
         id='hello',
         className='hello'
     )
@@ -78,14 +78,18 @@ def create_radio_container() -> html.Div:
 
 def select_pollination_project():
     """Function to create a Div for selecting a project on Pollination."""
-    select_project_container = html.Div(children=[
-        html.Div(id='select-account-container', className='pollination-dropdown'),
-        html.Div(id='select-project-container', className='pollination-dropdown'),
-        html.Div(id='select-artifact-container', className='pollination-dropdown')
-        ],
+    select_project_container = html.Div(
+        children=[html.Div(
+            id='select-account-container',
+            className='pollination-dropdown'),
+            html.Div(
+            id='select-project-container',
+            className='pollination-dropdown'),
+            html.Div(
+            id='select-artifact-container',
+            className='pollination-dropdown')],
         id='select-pollination-project',
-        className='select-pollination-project'
-    )
+        className='select-pollination-project')
 
     return select_project_container
 
@@ -94,9 +98,16 @@ def select_sample_project() -> html.Div:
     """Function to create the Div that contains the options for coloring the
     parallel coordinates by a column."""
     children = []
-    children.append(dbc.DropdownMenuItem('Daylight Factor', id={'select_sample_project': 'daylight-factor'}))
-    children.append(dbc.DropdownMenuItem('Box', id={'select_sample_project': 'box'}))
-    children.append(dbc.DropdownMenuItem('Box Without Images', id={'select_sample_project': 'box-without-img'}))
+    children.append(
+        dbc.DropdownMenuItem(
+            'Daylight Factor',
+            id={'select_sample_project': 'daylight-factor'}))
+    children.append(dbc.DropdownMenuItem(
+        'Box', id={'select_sample_project': 'box'}))
+    children.append(
+        dbc.DropdownMenuItem(
+            'Box Without Images',
+            id={'select_sample_project': 'box-without-img'}))
     dropdown_menu = dbc.DropdownMenu(
         id='select-sample-dropdown',
         label='Daylight Factor',
@@ -105,7 +116,8 @@ def select_sample_project() -> html.Div:
         size='sm'
     )
 
-    select_sample_label = html.Label(children='Select sample', className='color-by-label')
+    select_sample_label = html.Label(
+        children='Select sample', className='color-by-label')
 
     select_sample_container = html.Div(
         className='select-sample',
@@ -134,7 +146,8 @@ def create_color_by_children(parameters, color_by) -> List[html.Div]:
                 dbc.DropdownMenuItem(value['display_name'],
                                      id={'color_by_dropdown': f'{label}'})
             )
-    children.append(dbc.DropdownMenuItem('None', id={'color_by_dropdown': False}))
+    children.append(dbc.DropdownMenuItem(
+        'None', id={'color_by_dropdown': False}))
     children.append(dbc.DropdownMenuItem('Divider', divider=True))
     children.append(dbc.DropdownMenuItem('Output', header=True))
     children.extend(children_output)
@@ -150,7 +163,8 @@ def create_color_by_children(parameters, color_by) -> List[html.Div]:
     )
 
     store = dcc.Store(id='color-by-column', data=color_by)
-    color_by_label = html.Label(children='Color by', className='color-by-label')
+    color_by_label = html.Label(
+        children='Color by', className='color-by-label')
 
     children = [color_by_label, dropdown_menu, store]
 
@@ -233,10 +247,10 @@ def create_images_grid_children(
         src = project_folder.joinpath(record[img_column])
         image = html.Div(
             html.Img(src=src.as_posix(),
-                        id={'image': f'{record[img_column]}'},
-                        className='image-grid',
-                        style={'border-color': border_color}
-            ),
+                     id={'image': f'{record[img_column]}'},
+                     className='image-grid',
+                     style={'border-color': border_color}
+                     ),
             style={
                 'aspect-ratio': '1',
                 'width': '100%',
@@ -245,31 +259,46 @@ def create_images_grid_children(
                 'display': 'flex',
                 'align-items': 'center',
                 'justify-content': 'center',
-                }
+            }
         )
         children.append(image)
 
     return children
 
 
-def create_images_container(images_div) -> html.Div:
+def create_images_container(images_div, parameters, sort_by) -> html.Div:
     """Function to create a Div for images."""
-    images_container = html.Div([
-        dcc.Store(id='selected-image-data'),
-        html.Div([
-            html.Div(id='selected-image-info', className='selected-image-info'),
-            html.Div(
-                children=[html.Img(id='selected-image', className='selected-image')],
-                id='selected-image-wrapper', className='selected-image-wrapper')
-        ], id='selected-image-container', className='selected-image-container'),
-        html.Div(children=images_div,
-                 id='images-grid',
-                 className='images-grid')
-        ],
-        id='images-container', className='images-container'
+    children = create_sort_by_children(parameters, sort_by)
+    sort_container = html.Div(
+        children=children,
+        className='sort-by',
+        id='sort-by'
     )
 
-    return images_container
+    images_container = html.Div(
+        [dcc.Store(id='selected-image-data'),
+         html.Div(
+             [html.Div(
+                 id='selected-image-info', className='selected-image-info'),
+              html.Div(
+                  children=[html.Img(
+                      id='selected-image',
+                      className='selected-image')],
+                  id='selected-image-wrapper',
+                  className='selected-image-wrapper')],
+             id='selected-image-container',
+             className='selected-image-container'),
+         html.Div(
+             children=images_div, id='images-grid', className='images-grid')],
+        id='images-container', className='images-container')
+
+    main_images_container = html.Div([
+        sort_container, images_container
+    ],
+        id='main-images-container', className='main-images-container'
+    )
+
+    return main_images_container
 
 
 def create_sort_by_container(parameters, sort_by) -> html.Div:
