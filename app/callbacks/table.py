@@ -1,3 +1,4 @@
+"""Module for table callbacks."""
 import dash
 from dash.dependencies import Input, Output
 

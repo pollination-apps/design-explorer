@@ -1,14 +1,15 @@
+"""Module for Pollination callbacks."""
+import base64
+import zipfile
+from io import BytesIO
+from pathlib import Path
 import dash
 from dash.dependencies import Input, Output, State
-from pathlib import Path
+from dash.exceptions import PreventUpdate
 import pandas as pd
 import plotly.express as px
 import pollination_dash_io
 from pollination_io.api.client import ApiClient
-import base64
-import zipfile
-from io import BytesIO
-from dash.exceptions import PreventUpdate
 
 from containers import create_color_by_children, create_sort_by_children
 from helper import process_dataframe
