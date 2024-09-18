@@ -103,7 +103,7 @@ def load_project_from_pollination(value, name, key, project, api_key):
     bytes_value = base64.b64decode(value)
     file = Path(name)
 
-    if file.stem == '.zip':
+    if file.suffix == '.zip':
         zip_file_like = BytesIO(bytes_value)
         output_folder = pollination_path.joinpath(
             project['owner']['id'], project['id'], file.stem)
