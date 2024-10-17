@@ -48,9 +48,9 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: set up node
-        uses: actions/setup-node@v2.1.2
+        uses: actions/setup-node@v4
         with:
-          node-version: 14.2.0
+          node-version: 22.2.0
 
       - name: install semantic-release
         run: npm install @semantic-release/exec
@@ -58,10 +58,9 @@ jobs:
       - name: run semantic release
         id: new_release
         run: |
-          nextRelease="`npx semantic-release@^17.0.0 --dryRun | grep -oP 'Published release \K.*? ' || true`"
-          npx semantic-release@^17.0.0
+          nextRelease="`npx semantic-release@^23.1.1 --dryRun | grep -oP 'Published release \K.*? ' || true`"
+          npx semantic-release@^23.1.1
           echo "::set-output name=tag::$nextRelease"
-
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
