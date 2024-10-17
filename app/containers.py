@@ -136,12 +136,12 @@ def create_color_by_children(parameters, color_by) -> List[html.Div]:
     children_output = []
     for value in parameters.values():
         label = value['label']
-        if value['type'] == 'in':
+        if value['type'] == 'In':
             children_input.append(
                 dbc.DropdownMenuItem(value['display_name'],
                                      id={'color_by_dropdown': f'{label}'})
             )
-        if value['type'] == 'out':
+        if value['type'] == 'Out':
             children_output.append(
                 dbc.DropdownMenuItem(value['display_name'],
                                      id={'color_by_dropdown': f'{label}'})
@@ -193,12 +193,12 @@ def create_sort_by_children(parameters, sort_by) -> html.Div:
     children_output = []
     for value in parameters.values():
         label = value['label']
-        if value['type'] == 'in':
+        if value['type'] == 'In':
             children_input.append(
                 dbc.DropdownMenuItem(value['display_name'],
                                      id={'sort_by_dropdown': f'{label}'})
             )
-        if value['type'] == 'out':
+        if value['type'] == 'Out':
             children_output.append(
                 dbc.DropdownMenuItem(value['display_name'],
                                      id={'sort_by_dropdown': f'{label}'})

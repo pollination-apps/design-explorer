@@ -56,7 +56,7 @@ def update_sample_project(n_clicks):
 
     fig = px.parallel_coordinates(dff, color=color_by, labels=labels)
 
-    img_columns = dff.filter(regex=f'^img:').columns
+    img_columns = dff.filter(regex=f'^Img:').columns
     if img_columns.empty:
         img_column = None
     else:
@@ -64,7 +64,7 @@ def update_sample_project(n_clicks):
 
     columns = []
     for value in parameters.values():
-        if value['type'] != 'img':
+        if value['type'] != 'Img':
             columns.append(
                 {'id': value['label'],
                  'name': value['display_name']})
