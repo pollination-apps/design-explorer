@@ -127,11 +127,11 @@ def load_project_from_pollination(value, name, key, project, api_key):
 
         fig = px.parallel_coordinates(dff, color=color_by, labels=labels)
 
-        img_column = dff.filter(regex=f'^img:').columns[0]
+        img_column = dff.filter(regex=f'^Img:').columns[0]
 
         columns = []
         for value in parameters.values():
-            if value['type'] != 'img':
+            if value['type'] != 'Img':
                 columns.append(
                     {'id': value['label'],
                      'name': value['display_name']})
@@ -179,7 +179,7 @@ def load_project_from_pollination(value, name, key, project, api_key):
 
         fig = px.parallel_coordinates(dff, color=color_by, labels=labels)
 
-        img_columns = dff.filter(regex=f'^img:').columns
+        img_columns = dff.filter(regex=f'^Img:').columns
         if img_columns.empty:
             img_column = None
         else:
@@ -187,7 +187,7 @@ def load_project_from_pollination(value, name, key, project, api_key):
 
         columns = []
         for value in parameters.values():
-            if value['type'] != 'img':
+            if value['type'] != 'Img':
                 columns.append(
                     {'id': value['label'],
                      'name': value['display_name']})

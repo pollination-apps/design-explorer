@@ -30,8 +30,8 @@ def update_images_grid(
 
     The data coming from table is a list. Here is an example:
     [
-        {'in:X': 1, 'in:Y': 4, 'in:Z': 3.6, 'img:Perspective': 'X_1_Y_4_Z_3.6.png'},
-        {'in:X': 2, 'in:Y': 4, 'in:Z': 3.6, 'img:Perspective': 'X_2_Y_4_Z_3.6.png'}
+        {'In:X': 1, 'In:Y': 4, 'In:Z': 3.6, 'Img:Perspective': 'X_1_Y_4_Z_3.6.png'},
+        {'In:X': 2, 'In:Y': 4, 'In:Z': 3.6, 'Img:Perspective': 'X_2_Y_4_Z_3.6.png'}
     ]
     """
     if img_column is None:
