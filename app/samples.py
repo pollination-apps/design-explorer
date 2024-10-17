@@ -42,7 +42,7 @@ def load_sample_project(sample_identifier: str = sample_alias['daylight-factor']
 
     fig = px.parallel_coordinates(df, color=color_by, labels=labels)
 
-    img_column = df.filter(regex=f'^Img:').columns[0]
+    img_column = df.filter(regex=f'^img:').columns[0]
 
     minimum, maximum = df[color_by].min(), df[color_by].max()
     sorted_df = df.sort_values(by=sort_by, ascending=False)
@@ -52,7 +52,7 @@ def load_sample_project(sample_identifier: str = sample_alias['daylight-factor']
 
     columns = []
     for value in parameters.values():
-        if value['type'] != 'Img':
+        if value['type'] != 'img':
             columns.append({'id': value['label'], 'name': value['display_name']})
         else:
             columns.append(

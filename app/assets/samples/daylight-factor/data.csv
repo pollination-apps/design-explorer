@@ -1,4 +1,4 @@
-In:room_width,In:room_depth,In:transmittance,In:louver_depth,Out:AVG_DF,Out:MIN_DF,Out:MAX_DF,Out:UNIFORMITY_RATIO,Img:Perspective
+in:room_width,in:room_depth,in:transmittance,in:louver_depth,out:AVG_DF,out:MIN_DF,out:MAX_DF,out:UNIFORMITY_RATIO,img:Perspective
 3,3,0.35,0.2,1.589018,0.44515,3.96824,0.280142,room_width_3_room_depth_3_transmittance_0.35_louver_depth_0.2.png
 4,3,0.35,0.2,1.65024,0.335407,3.890882,0.203247,room_width_4_room_depth_3_transmittance_0.35_louver_depth_0.2.png
 5,3,0.35,0.2,1.72376,0.305723,3.927579,0.177358,room_width_5_room_depth_3_transmittance_0.35_louver_depth_0.2.png
